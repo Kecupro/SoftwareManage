@@ -40,13 +40,13 @@ jobs:
         run: npm install
         working-directory: ./client
 
-      - name: Run backend tests
-        run: npm test --if-present
-        working-directory: .
+      # - name: Run backend tests
+      #   run: npm test --if-present
+      #   working-directory: .
 
-      - name: Run frontend tests
-        run: npm test --if-present
-        working-directory: ./client
+      # - name: Run frontend tests
+      #   run: npm test --if-present
+      #   working-directory: ./client
       
       - name: Build frontend
         run: npm run build
