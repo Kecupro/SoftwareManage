@@ -1,13 +1,11 @@
+# Git
+.git
+.gitignore
+README.md
+
 # Node modules
 node_modules/
 */node_modules/
-
-# Build outputs
-client/dist/
-client/build/
-client/.vite/
-server/dist/
-server/build/
 
 # Logs
 *.log
@@ -21,18 +19,22 @@ yarn-error.log*
 server/.env
 client/.env
 
+# Build outputs
+client/dist/
+client/.vite/
+
+# Test/coverage
+coverage/
+.nyc_output/
+
 # OS files
 .DS_Store
 Thumbs.db
 
-# Editor
+# IDE files
 .vscode/
 .idea/
 
 # Uploads
 server/uploads/*
 !server/uploads/.gitkeep
-
-# Test/coverage
-coverage/
-.nyc_output/ 
