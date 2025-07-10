@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 
-export default function PartnerProjectList({ onProjectSelect, selectedProject }) {
+export default function PartnerProjectList({ onProjectSelect, selectedProject, onViewDetail }) {
   const { showError, showSuccess } = useNotifications();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -212,7 +212,7 @@ export default function PartnerProjectList({ onProjectSelect, selectedProject })
               </div>
 
               <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-gray-500">
                     Tiến độ: {project.progress || 0}%
                   </span>
@@ -222,6 +222,27 @@ export default function PartnerProjectList({ onProjectSelect, selectedProject })
                       style={{ width: `${project.progress || 0}%` }}
                     ></div>
                   </div>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewDetail({
+                        id: project._id,
+                        name: project.name,
+                        code: project.code,
+                        status: project.status,
+                        description: project.description,
+                        timeline: project.timeline,
+                        team: project.team,
+                        modules: project.modules,
+                        progress: project.progress
+                      });
+                    }}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                  >
+                    Xem chi tiết
+                  </button>
                 </div>
               </div>
             </div>

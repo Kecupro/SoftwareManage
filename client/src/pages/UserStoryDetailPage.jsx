@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function UserStoryDetailPage() {
   const { id } = useParams();
+  const { user: currentUser } = useAuth();
   const [userStory, setUserStory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -11,6 +13,13 @@ export default function UserStoryDetailPage() {
   const [rejectNote, setRejectNote] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [approveNote, setApproveNote] = useState('');
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [approveError, setApproveError] = useState('');
+
+  // Kiểm tra quyền
+  const canUpdateStatus = userStory && currentUser && userStory.assignedTo && userStory.assignedTo._id === currentUser._id;
+  const canApprove = userStory && currentUser && (currentUser.role === 'qa' || currentUser.role === 'reviewer');
 
   useEffect(() => {
     fetchUserStoryDetails();
@@ -61,9 +70,34 @@ export default function UserStoryDetailPage() {
     }
   };
 
-  const handleApprove = async () => {
-    setActionLoading(true);
-    setErrorMsg('');
+  // Cập nhật trạng thái
+  const handleStatusChange = async (newStatus) => {
+    if (!canUpdateStatus) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/user-stories/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      const data = await res.json();
+      if (data.success) {
+        fetchUserStoryDetails();
+      }
+    } catch {
+      alert('Cập nhật trạng thái thất bại!');
+    }
+  };
+
+  // Duyệt user story
+  const handleApprove = async (status) => {
+    if (!canApprove) return;
+    setApproveLoading(true);
+    setApproveError('');
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/user-stories/${id}/approve`, {
@@ -72,14 +106,19 @@ export default function UserStoryDetailPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ note: 'Phê duyệt user story' })
+        body: JSON.stringify({ status, note: approveNote })
       });
-      if (!res.ok) throw new Error('Phê duyệt thất bại');
-      await fetchUserStoryDetails();
+      const data = await res.json();
+      if (data.success) {
+        fetchUserStoryDetails();
+        setApproveNote('');
+      } else {
+        setApproveError(data.message || 'Lỗi khi duyệt');
+      }
     } catch {
-      setErrorMsg('Phê duyệt thất bại');
+      setApproveError('Lỗi kết nối server');
     } finally {
-      setActionLoading(false);
+      setApproveLoading(false);
     }
   };
 
@@ -264,20 +303,21 @@ export default function UserStoryDetailPage() {
             )}
             {userStory.deliveryStatus === 'pending' && (
               <>
-                <button
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm disabled:opacity-50"
-                  onClick={handleApprove}
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? 'Đang phê duyệt...' : 'Phê duyệt'}
-                </button>
-                <button
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm disabled:opacity-50"
-                  onClick={() => setShowRejectInput(!showRejectInput)}
-                  disabled={actionLoading}
-                >
-                  Từ chối
-                </button>
+                {/* Nút cập nhật trạng thái */}
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => handleStatusChange('in-progress')} className="bg-blue-500 text-white px-3 py-1 rounded">Bắt đầu</button>
+                  <button onClick={() => handleStatusChange('completed')} className="bg-green-600 text-white px-3 py-1 rounded">Mark as Done</button>
+                </div>
+                {/* Nút duyệt user story */}
+                <div className="mt-4">
+                  <label className="block font-medium mb-1">Ghi chú duyệt</label>
+                  <textarea value={approveNote} onChange={e => setApproveNote(e.target.value)} className="w-full border rounded px-2 py-1 mb-2" rows={2} />
+                  {approveError && <div className="text-red-600 text-sm mb-2">{approveError}</div>}
+                  <div className="flex gap-2">
+                    <button disabled={approveLoading} onClick={() => handleApprove('accepted')} className="bg-green-600 text-white px-3 py-1 rounded">Duyệt user story</button>
+                    <button disabled={approveLoading} onClick={() => handleApprove('rejected')} className="bg-red-600 text-white px-3 py-1 rounded">Từ chối</button>
+                  </div>
+                </div>
               </>
             )}
           </div>

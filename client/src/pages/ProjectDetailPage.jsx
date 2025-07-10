@@ -5,9 +5,61 @@ import FileUpload from '../components/FileUpload';
 import FileList from '../components/FileList';
 import FileManager from '../components/FileManager';
 import UsersPage from './UsersPage'; // Để fetch user nếu cần
+import { UserIcon, BeakerIcon, CheckBadgeIcon, Cog6ToothIcon, CalendarIcon, ArrowDownTrayIcon, ExclamationTriangleIcon, FlagIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../context/AuthContext';
+
+// Helper: Tính tiến độ module dựa trên task/user story con
+function calcModuleProgress(module, tasks, userStories) {
+  // Ưu tiên tính theo task con nếu có
+  const moduleTasks = tasks.filter(t => t.moduleId === module._id || t.module === module._id);
+  if (moduleTasks.length > 0) {
+    const completed = moduleTasks.filter(t => t.status === 'completed').length;
+    return Math.round((completed / moduleTasks.length) * 100);
+  }
+  // Nếu không có task, thử theo user story
+  const moduleStories = userStories.filter(us => us.moduleId === module._id || us.module === module._id);
+  if (moduleStories.length > 0) {
+    const completed = moduleStories.filter(us => us.status === 'completed').length;
+    return Math.round((completed / moduleStories.length) * 100);
+  }
+  // Nếu không có gì, fallback theo trạng thái
+  if (module.status === 'completed') return 100;
+  if (module.status === 'in-progress') return 50;
+  return 0;
+}
+
+// Helper: Tính tiến độ user story dựa trên task con
+function calcUserStoryProgress(userStory, tasks) {
+  const storyTasks = tasks.filter(t => t.userStoryId === userStory._id || t.userStory === userStory._id);
+  if (storyTasks.length > 0) {
+    const completed = storyTasks.filter(t => t.status === 'completed').length;
+    return Math.round((completed / storyTasks.length) * 100);
+  }
+  if (userStory.status === 'completed') return 100;
+  if (userStory.status === 'in-progress') return 50;
+  return 0;
+}
+
+// Helper: Tính tiến độ sprint dựa trên task/user story trong sprint
+function calcSprintProgress(sprint, tasks, userStories) {
+  const sprintTasks = tasks.filter(t => t.sprintId === sprint._id || t.sprint === sprint._id);
+  const sprintStories = userStories.filter(us => us.sprintId === sprint._id || us.sprint === sprint._id);
+  const total = sprintTasks.length + sprintStories.length;
+  if (total > 0) {
+    const completed = sprintTasks.filter(t => t.status === 'completed').length + sprintStories.filter(us => us.status === 'completed').length;
+    return Math.round((completed / total) * 100);
+  }
+  if (sprint.status === 'completed') return 100;
+  if (sprint.status === 'active') return 50;
+  return 0;
+}
+
+// Thêm hàm kiểm tra hoàn thành
+const isCompleted = status => ['completed', 'done', 'complete'].includes(status);
 
 export default function ProjectDetailPage() {
     const { id } = useParams();
+    const { user: currentUser } = useAuth(); // Lấy user hiện tại
     const [project, setProject] = useState(null);
     const [sprints, setSprints] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -60,7 +112,7 @@ export default function ProjectDetailPage() {
                 fetch(`/api/tasks?projectId=${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`/api/bugs?projectId=${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`/api/modules?projectId=${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`/api/user-stories?projectId=${id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`/api/user-stories?project=${id}`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
             
             const sprintsData = await sprintsRes.json();
@@ -137,11 +189,9 @@ export default function ProjectDetailPage() {
     const calculateProgress = () => {
         const totalItems = tasks.length + modules.length + userStories.length;
         if (totalItems === 0) return 0;
-        
-        const completedTasks = tasks.filter(t => t.status === 'completed').length;
-        const completedModules = modules.filter(m => m.status === 'completed').length;
-        const completedUserStories = userStories.filter(us => us.status === 'completed').length;
-        
+        const completedTasks = tasks.filter(t => isCompleted(t.status)).length;
+        const completedModules = modules.filter(m => isCompleted(m.status)).length;
+        const completedUserStories = userStories.filter(us => isCompleted(us.status)).length;
         const totalCompleted = completedTasks + completedModules + completedUserStories;
         return Math.round((totalCompleted / totalItems) * 100);
     };
@@ -179,6 +229,21 @@ export default function ProjectDetailPage() {
         } finally {
             setEditTeamLoading(false);
         }
+    };
+
+    // Hàm cập nhật trạng thái
+    const handleUpdateStatus = async (type, entityId, status) => {
+        const token = localStorage.getItem('token');
+        let url = '';
+        if (type === 'task') url = `/api/tasks/${entityId}/status`;
+        if (type === 'userStory') url = `/api/user-stories/${entityId}/status`;
+        if (type === 'module') url = `/api/modules/${entityId}/status`;
+        await fetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ status })
+        });
+        fetchProjectDetails();
     };
 
     if (loading) {
@@ -404,7 +469,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Info Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+            {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
                 <div className="flex items-start">
                     <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -420,7 +485,7 @@ export default function ProjectDetailPage() {
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Tabs */}
             <div className="mt-8 border-b border-gray-200">
@@ -508,7 +573,7 @@ export default function ProjectDetailPage() {
                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                 <div
                                                     className="bg-green-600 h-2 rounded-full"
-                                                style={{ width: `${tasks.length > 0 ? (tasks.filter(t => t.status === 'completed').length / tasks.length) * 100 : 0}%` }}
+                                                style={{ width: `${tasks.length > 0 ? (tasks.filter(t => ['completed', 'done', 'complete'].includes(t.status)).length / tasks.length) * 100 : 0}%` }}
                                                 ></div>
                                             </div>
                                         </div>
@@ -575,25 +640,125 @@ export default function ProjectDetailPage() {
                             <h3 className="text-lg font-medium text-gray-900 mb-4">Modules</h3>
                         {modules.length > 0 ? (
                             <div className="space-y-4">
-                                {modules.map((module) => (
-                                    <div key={module._id || module.id} className="bg-gray-50 p-4 rounded-lg">
+                                    {modules.map((module) => {
+                                        const progress = calcModuleProgress(module, tasks, userStories);
+                                        return (
+                                            <div key={module._id || module.id} className="bg-gray-50 p-4 rounded-lg transition-shadow border border-gray-100 hover:shadow-lg">
                                         <div className="flex items-center justify-between">
+                                                    <div className="w-full">
+                                                        <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                                            {module.name}
+                                                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                                module.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                                module.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                                module.status === 'delivered' ? 'bg-indigo-100 text-indigo-700' :
+                                                                module.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                                                'bg-gray-100 text-gray-700'
+                                                            }`}>
+                                                                {module.status}
+                                                            </span>
+                                                        </h4>
+                                                        {/* Nhóm trường tích hợp */}
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-3">
+                                                            {/* Gitlab */}
                                             <div>
-                                                <h4 className="text-sm font-medium text-gray-900">{module.name}</h4>
-                                                <p className="text-sm text-gray-500">{module.status}</p>
+                                                                <div className="font-semibold mb-1 text-xs text-gray-700">Gitlab</div>
+                                                                <div className="text-xs">Commit: <span className="font-mono">{module.gitCommitHash || 'N/A'}</span></div>
+                                                                <div className="text-xs">Branch: <span>{module.gitBranch || 'N/A'}</span></div>
+                                                                <div className="text-xs">MR: <span>#{module.pullRequestId || 'N/A'} {module.pullRequestTitle || ''}</span></div>
+                                                                <div className="text-xs">Pipeline: <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ml-1 ${
+                                                                    module.pipelineStatus === 'success' ? 'bg-green-100 text-green-700' :
+                                                                    module.pipelineStatus === 'failed' ? 'bg-red-100 text-red-700' :
+                                                                    module.pipelineStatus === 'running' ? 'bg-yellow-100 text-yellow-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                                }`}>{module.pipelineStatus || 'N/A'}</span></div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-medium text-gray-900">{module.progress || 0}%</p>
-                                                <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
-                                                    <div
-                                                        className="bg-blue-600 h-2 rounded-full"
-                                                        style={{ width: `${module.progress || 0}%` }}
+                                                            {/* Jira */}
+                                                            <div>
+                                                                <div className="font-semibold mb-1 text-xs text-gray-700">Jira</div>
+                                                                <div className="text-xs">Ticket: <span>{module.jiraId || 'N/A'}</span></div>
+                                                                <div className="text-xs">Trạng thái: <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ml-1 ${
+                                                                    module.jiraStatus === 'done' ? 'bg-green-100 text-green-700' :
+                                                                    module.jiraStatus === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                                    module.jiraStatus === 'todo' ? 'bg-yellow-100 text-yellow-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                                }`}>{module.jiraStatus || 'N/A'}</span></div>
+                                                                <div className="text-xs">Assignee: <span>{module.jiraAssignee || 'N/A'}</span></div>
+                                                                <div className="text-xs">Priority: <span>{module.jiraPriority || 'N/A'}</span></div>
+                                                            </div>
+                                                            {/* SonarQube */}
+                                                            <div>
+                                                                <div className="font-semibold mb-1 text-xs text-gray-700">SonarQube</div>
+                                                                <div className="text-xs">Status: <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ml-1 ${
+                                                                    module.sonarStatus === 'passed' ? 'bg-green-100 text-green-700' :
+                                                                    module.sonarStatus === 'failed' ? 'bg-red-100 text-red-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                                }`}>{module.sonarStatus || 'N/A'}</span></div>
+                                                                <div className="text-xs">Coverage: <span>{typeof module.sonarCoverage === 'number' ? module.sonarCoverage + '%' : 'N/A'}</span></div>
+                                                                <div className="text-xs">Bugs: <span>{typeof module.sonarBugs === 'number' ? module.sonarBugs : 'N/A'}</span></div>
+                                                                <div className="text-xs">Code Smells: <span>{typeof module.sonarCodeSmells === 'number' ? module.sonarCodeSmells : 'N/A'}</span></div>
+                                                                <div className="text-xs">Duplications: <span>{typeof module.sonarDuplications === 'number' ? module.sonarDuplications + '%' : 'N/A'}</span></div>
+                                                            </div>
+                                                            {/* Jenkins */}
+                                                            <div>
+                                                                <div className="font-semibold mb-1 text-xs text-gray-700">Jenkins</div>
+                                                                <div className="text-xs">Build: <span>#{module.jenkinsBuildNumber || 'N/A'}</span></div>
+                                                                <div className="text-xs">Status: <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ml-1 ${
+                                                                    module.jenkinsStatus === 'success' ? 'bg-green-100 text-green-700' :
+                                                                    module.jenkinsStatus === 'failed' ? 'bg-red-100 text-red-700' :
+                                                                    module.jenkinsStatus === 'running' ? 'bg-yellow-100 text-yellow-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                                }`}>{module.jenkinsStatus || 'N/A'}</span></div>
+                                                                <div className="text-xs">Triggered by: <span>{module.jenkinsTriggeredBy || 'N/A'}</span></div>
+                                                                <div className="text-xs">Duration: <span>{module.jenkinsDuration ? module.jenkinsDuration + 's' : 'N/A'}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        {/* End nhóm trường tích hợp */}
+                                                        <div className="flex flex-wrap gap-2 mt-1">
+                                                            {[
+                                                                { label: 'Dev', user: module.assignedTo, color: 'bg-blue-100', icon: <UserIcon className="w-4 h-4 text-blue-500" /> },
+                                                                { label: 'QA', user: module.qa, color: 'bg-yellow-100', icon: <BeakerIcon className="w-4 h-4 text-yellow-500" /> },
+                                                                { label: 'Reviewer', user: module.reviewer, color: 'bg-purple-100', icon: <CheckBadgeIcon className="w-4 h-4 text-purple-500" /> },
+                                                                { label: 'DevOps', user: module.deliveredBy, color: 'bg-gray-100', icon: <Cog6ToothIcon className="w-4 h-4 text-gray-500" /> }
+                                                            ].map((role, idx) => (
+                                                                <div key={idx} className={`flex items-center text-xs rounded px-2 py-1 shadow-sm border ${role.color} relative group`}>
+                                                                    {role.user?.avatar ? (
+                                                                        <img src={role.user.avatar} alt={role.user.fullName || role.user.username} className="w-6 h-6 rounded-full mr-1" />
+                                                                    ) : (
+                                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1 text-gray-500 font-semibold">
+                                                                            {(role.user?.fullName || role.user?.username || role.label).charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                    {role.icon}
+                                                                    <span className="font-medium text-gray-700 ml-1">{role.label}:</span>
+                                                                    <span className="text-gray-600 ml-1">{role.user?.fullName || role.user?.username || 'Chưa phân công'}</span>
+                                                                    {/* Tooltip */}
+                                                                    {(role.user?.fullName || role.user?.email) && (
+                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 z-10 whitespace-nowrap">
+                                                                            {role.user?.fullName} {role.user?.email && <><br />{role.user.email}</>}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 items-center">
+                                                            <div className="flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> Deadline: {module.deadline ? new Date(module.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
+                                                            <div className="flex items-center gap-1"><ArrowDownTrayIcon className="w-4 h-4" /> Bàn giao: <span className={module.deliveryStatus === 'accepted' ? 'text-green-600' : module.deliveryStatus === 'pending' ? 'text-yellow-600' : 'text-gray-600'}>{module.deliveryStatus === 'accepted' ? 'Đã bàn giao' : module.deliveryStatus === 'pending' ? 'Chờ duyệt' : 'Chưa bàn giao'}</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right min-w-[80px]">
+                                                        <p className="text-sm font-medium text-gray-900">{progress}%</p>
+                                                        <div className="w-20 bg-gray-200 rounded-full h-2 mt-1 overflow-hidden">
+                                                            <div
+                                                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                                                style={{ width: `${progress}%` }}
                                                     ></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+                                        );
+                                    })}
                             </div>
                         ) : (
                             <div className="text-center py-8">
@@ -610,21 +775,61 @@ export default function ProjectDetailPage() {
                             <h3 className="text-lg font-medium text-gray-900 mb-4">Sprints</h3>
                         {sprints.length > 0 ? (
                             <div className="space-y-4">
-                                {sprints.map((sprint) => (
-                                    <div key={sprint._id || sprint.id} className="bg-gray-50 p-4 rounded-lg">
+                                    {sprints.map((sprint) => {
+                                        const progress = calcSprintProgress(sprint, tasks, userStories);
+                                        return (
+                                            <div key={sprint._id || sprint.id} className="bg-gray-50 p-4 rounded-lg transition-shadow border border-gray-100 hover:shadow-lg">
                                         <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-900">{sprint.name}</h4>
-                                                <p className="text-sm text-gray-500">
-                                                    {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString('vi-VN') : 'N/A'} - {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString('vi-VN') : 'N/A'}
-                                                </p>
-                                            </div>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(sprint.status)}`}>
-                                                {getStatusText(sprint.status)}
+                                                    <div className="w-full">
+                                                        <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                                            {sprint.name}
+                                                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                                sprint.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                                sprint.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                                                                sprint.status === 'onHold' ? 'bg-red-100 text-red-700' :
+                                                                'bg-gray-100 text-gray-700'
+                                                            }`}>
+                                                                {sprint.status}
                                             </span>
+                                                        </h4>
+                                                        <div className="flex flex-wrap gap-2 mt-1">
+                                                            {[{ label: 'Owner', user: sprint.owner, color: 'bg-blue-100', icon: <UserIcon className="w-4 h-4 text-blue-500" /> }].map((role, idx) => (
+                                                                <div key={idx} className={`flex items-center text-xs rounded px-2 py-1 shadow-sm border ${role.color} relative group`}>
+                                                                    {role.user?.avatar ? (
+                                                                        <img src={role.user.avatar} alt={role.user.fullName || role.user.username} className="w-6 h-6 rounded-full mr-1" />
+                                                                    ) : (
+                                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1 text-gray-500 font-semibold">
+                                                                            {(role.user?.fullName || role.user?.username || role.label).charAt(0).toUpperCase()}
                                         </div>
+                                                                    )}
+                                                                    {role.icon}
+                                                                    <span className="font-medium text-gray-700 ml-1">{role.label}:</span>
+                                                                    <span className="text-gray-600 ml-1">{role.user?.fullName || role.user?.username || 'Chưa phân công'}</span>
+                                                                    {(role.user?.fullName || role.user?.email) && (
+                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 z-10 whitespace-nowrap">
+                                                                            {role.user?.fullName} {role.user?.email && <><br />{role.user.email}</>}
+                                                                        </div>
+                                                                    )}
                                     </div>
                                 ))}
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 items-center">
+                                                            <div className="flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString('vi-VN') : 'N/A'} - {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString('vi-VN') : 'N/A'}</div>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                                <span>Tiến độ</span>
+                                                                <span>{progress}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                             </div>
                         ) : (
                             <div className="text-center py-8">
@@ -642,20 +847,66 @@ export default function ProjectDetailPage() {
                         {tasks.length > 0 ? (
                             <div className="space-y-4">
                                 {tasks.map((task) => (
-                                    <div key={task._id || task.id} className="bg-gray-50 p-4 rounded-lg">
+                                        <div key={task._id || task.id} className="bg-gray-50 p-4 rounded-lg transition-shadow border border-gray-100 hover:shadow-lg">
                                         <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-900">{task.title}</h4>
-                                                <p className="text-sm text-gray-500">Assignee: {task.assignee?.fullName || task.assignee?.username || 'Chưa phân công'}</p>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(task.status)}`}>
-                                                    {getStatusText(task.status)}
+                                                <div className="w-full">
+                                                    <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                                        {task.title}
+                                                        <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                            task.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                            task.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                            task.status === 'onHold' ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {task.status}
                                                 </span>
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(task.priority)}`}>
-                                                    {getPriorityText(task.priority)}
-                                                </span>
+                                                    </h4>
+                                                    <div className="flex flex-wrap gap-2 mt-1">
+                                                        {[{ label: 'Assignee', user: task.assignee, color: 'bg-blue-100', icon: <UserIcon className="w-4 h-4 text-blue-500" /> }].map((role, idx) => (
+                                                            <div key={idx} className={`flex items-center text-xs rounded px-2 py-1 shadow-sm border ${role.color} relative group`}>
+                                                                {role.user?.avatar ? (
+                                                                    <img src={role.user.avatar} alt={role.user.fullName || role.user.username} className="w-6 h-6 rounded-full mr-1" />
+                                                                ) : (
+                                                                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1 text-gray-500 font-semibold">
+                                                                        {(role.user?.fullName || role.user?.username || role.label).charAt(0).toUpperCase()}
                                             </div>
+                                                                )}
+                                                                {role.icon}
+                                                                <span className="font-medium text-gray-700 ml-1">{role.label}:</span>
+                                                                <span className="text-gray-600 ml-1">{role.user?.fullName || role.user?.username || 'Chưa phân công'}</span>
+                                                                {(role.user?.fullName || role.user?.email) && (
+                                                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 z-10 whitespace-nowrap">
+                                                                        {role.user?.fullName} {role.user?.email && <><br />{role.user.email}</>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 items-center">
+                                                        <div className="flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> Deadline: {task.deadline ? new Date(task.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
+                                                        <div className="flex items-center gap-1"><FlagIcon className="w-4 h-4" /> Độ ưu tiên: <span className={task.priority === 'high' ? 'text-red-600' : task.priority === 'medium' ? 'text-yellow-600' : 'text-gray-600'}>{task.priority || 'N/A'}</span></div>
+                                                    </div>
+                                                    {typeof task.progress === 'number' && (
+                                                        <div className="mt-2">
+                                                            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                                <span>Tiến độ</span>
+                                                                <span>{task.progress}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${task.progress}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {/* Nút hoàn thành cho assignee */}
+                                                    {task.assignee?._id === currentUser?._id && task.status !== 'completed' && (
+                                                        <button
+                                                            className="mt-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                                            onClick={() => handleUpdateStatus('task', task._id, 'completed')}
+                                                        >
+                                                            Đánh dấu hoàn thành
+                                                        </button>
+                                                    )}
+                                                </div>
                                         </div>
                                     </div>
                                 ))}
@@ -676,20 +927,57 @@ export default function ProjectDetailPage() {
                         {bugs.length > 0 ? (
                             <div className="space-y-4">
                                 {bugs.map((bug) => (
-                                    <div key={bug._id || bug.id} className="bg-gray-50 p-4 rounded-lg">
+                                        <div key={bug._id || bug.id} className="bg-gray-50 p-4 rounded-lg transition-shadow border border-gray-100 hover:shadow-lg">
                                         <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-900">{bug.title}</h4>
-                                                <p className="text-sm text-gray-500">Assignee: {bug.assignedTo?.fullName || bug.assignedTo?.username || 'Chưa phân công'}</p>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(bug.status)}`}>
-                                                    {getStatusText(bug.status)}
+                                                <div className="w-full">
+                                                    <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                                        {bug.title}
+                                                        <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                            bug.status === 'resolved' ? 'bg-green-100 text-green-700' :
+                                                            bug.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                            bug.status === 'open' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {bug.status}
                                                 </span>
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(bug.severity)}`}>
-                                                    {getPriorityText(bug.severity)}
-                                                </span>
+                                                    </h4>
+                                                    <div className="flex flex-wrap gap-2 mt-1">
+                                                        {[{ label: 'Assignee', user: bug.assignedTo, color: 'bg-blue-100', icon: <UserIcon className="w-4 h-4 text-blue-500" /> }].map((role, idx) => (
+                                                            <div key={idx} className={`flex items-center text-xs rounded px-2 py-1 shadow-sm border ${role.color} relative group`}>
+                                                                {role.user?.avatar ? (
+                                                                    <img src={role.user.avatar} alt={role.user.fullName || role.user.username} className="w-6 h-6 rounded-full mr-1" />
+                                                                ) : (
+                                                                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1 text-gray-500 font-semibold">
+                                                                        {(role.user?.fullName || role.user?.username || role.label).charAt(0).toUpperCase()}
                                             </div>
+                                                                )}
+                                                                {role.icon}
+                                                                <span className="font-medium text-gray-700 ml-1">{role.label}:</span>
+                                                                <span className="text-gray-600 ml-1">{role.user?.fullName || role.user?.username || 'Chưa phân công'}</span>
+                                                                {(role.user?.fullName || role.user?.email) && (
+                                                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 z-10 whitespace-nowrap">
+                                                                        {role.user?.fullName} {role.user?.email && <><br />{role.user.email}</>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 items-center">
+                                                        <div className="flex items-center gap-1"><ExclamationTriangleIcon className="w-4 h-4" /> Severity: <span className={bug.severity === 'high' ? 'text-red-600' : bug.severity === 'medium' ? 'text-yellow-600' : 'text-gray-600'}>{bug.severity || 'N/A'}</span></div>
+                                                        <div className="flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> Deadline: {bug.deadline ? new Date(bug.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
+                                                    </div>
+                                                    {typeof bug.progress === 'number' && (
+                                                        <div className="mt-2">
+                                                            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                                <span>Tiến độ</span>
+                                                                <span>{bug.progress}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${bug.progress}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                         </div>
                                     </div>
                                 ))}
@@ -709,21 +997,41 @@ export default function ProjectDetailPage() {
                         <h3 className="text-lg font-medium text-gray-900 mb-4">User Stories</h3>
                         {userStories.length > 0 ? (
                             <div className="space-y-4">
-                                {userStories.map((userStory) => (
-                                    <div key={userStory._id || userStory.id} className="bg-gray-50 p-4 rounded-lg">
+                                    {userStories.map((userStory) => {
+                                        const progress = calcUserStoryProgress(userStory, tasks);
+                                        return (
+                                            <div key={userStory._id || userStory.id} className="bg-gray-50 p-4 rounded-lg transition-shadow border border-gray-100 hover:shadow-lg">
                                         <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-900">{userStory.title}</h4>
-                                                <p className="text-sm text-gray-500">Status: {userStory.status}</p>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(userStory.status)}`}>
-                                                    {getStatusText(userStory.status)}
+                                                    <div className="w-full">
+                                                        <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                                            {userStory.title}
+                                                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                                userStory.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                                userStory.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                                userStory.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                                                'bg-gray-100 text-gray-700'
+                                                            }`}>
+                                                                {userStory.status}
                                                 </span>
+                                                        </h4>
+                                                        {/* ... các trường khác ... */}
+                                                        <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500 items-center">
+                                                            <div className="flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> Deadline: {userStory.deadline ? new Date(userStory.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
                                             </div>
+                                                        <div className="mt-2">
+                                                            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                                <span>Tiến độ</span>
+                                                                <span>{progress}%</span>
                                         </div>
+                                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
                                     </div>
-                                ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                             </div>
                         ) : (
                             <div className="text-center py-8">

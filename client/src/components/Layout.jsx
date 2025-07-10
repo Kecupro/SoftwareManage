@@ -42,21 +42,21 @@ export default function Layout() {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
+    <div className="h-screen flex overflow-hidden bg-white">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block md:flex-shrink-0`}>
         <div className="flex flex-col w-64 h-full">
-          <div className="flex flex-col h-0 flex-1 bg-gray-800">
+          <div className="flex flex-col h-0 flex-1 ">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex items-center flex-shrink-0 px-4">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {/* <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    </svg> */}
                   </div>
                   <div className="ml-3">
-                    <h1 className="text-white text-lg font-medium">Dev Management</h1>
+                    <img src="/viettelsol.png" alt="Logo" className="w-full h-20" />
                   </div>
                 </div>
               </div>
@@ -69,14 +69,14 @@ export default function Layout() {
                       to={item.href}
                       className={`${
                         isActive
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          ? 'bg-red-600 text-white'
+                          : 'text-black hover:bg-red-600 hover:text-white'
                       } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
                       onClick={() => { console.log('Click:', item.href); }}
                     >
                       <svg
                         className={`${
-                          isActive ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300'
+                          isActive ? 'text-white' : 'text-red-600 group-hover:text-white'
                         } mr-3 flex-shrink-0 h-6 w-6`}
                         fill="none"
                         viewBox="0 0 24 24"
@@ -90,11 +90,11 @@ export default function Layout() {
                 })}
               </nav>
             </div>
-            <div className="flex-shrink-0 flex bg-gray-700 p-4">
+            <div className="flex-shrink-0 flex bg-red-600 p-4">
               <div className="flex items-center">
                 <div>
-                  <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center">
-                    <span className="text-sm font-medium text-white">
+                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+                    <span className="text-sm font-medium text-red-600">
                       {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export default function Layout() {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="ml-auto flex-shrink-0 bg-gray-600 p-1 rounded-md text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                  className="ml-5 flex-shrink-0 bg-white p-1 rounded-md text-black hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
                 >
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

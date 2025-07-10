@@ -212,13 +212,13 @@ export default function PartnerDashboard({ user, onTabChange }) {
         <h2 className="text-lg font-medium text-gray-900 mb-4">Thao tác nhanh</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button 
-            onClick={() => handleQuickAction('delivery')}
+            onClick={() => handleQuickAction('projects')}
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            <span className="text-2xl mr-3">📤</span>
+            <span className="text-2xl mr-3">📁</span>
             <div className="text-left">
-              <div className="font-medium text-gray-900">Bàn giao module</div>
-              <div className="text-sm text-gray-500">Upload source code và tài liệu</div>
+              <div className="font-medium text-gray-900">Xem dự án</div>
+              <div className="text-sm text-gray-500">Xem danh sách và chi tiết dự án</div>
             </div>
           </button>
           
@@ -229,18 +229,18 @@ export default function PartnerDashboard({ user, onTabChange }) {
             <span className="text-2xl mr-3">📄</span>
             <div className="text-left">
               <div className="font-medium text-gray-900">Quản lý tài liệu</div>
-              <div className="text-sm text-gray-500">Upload và xem tài liệu dự án</div>
+              <div className="text-sm text-gray-500">Upload và xem tài liệu chung</div>
             </div>
           </button>
           
           <button 
-            onClick={() => handleQuickAction('projects')}
+            onClick={() => handleQuickAction('module-requests')}
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            <span className="text-2xl mr-3">📊</span>
+            <span className="text-2xl mr-3">📝</span>
             <div className="text-left">
-              <div className="font-medium text-gray-900">Xem dự án</div>
-              <div className="text-sm text-gray-500">Thống kê và tiến độ dự án</div>
+              <div className="font-medium text-gray-900">Yêu cầu Module</div>
+              <div className="text-sm text-gray-500">Tạo yêu cầu module mới</div>
             </div>
           </button>
         </div>

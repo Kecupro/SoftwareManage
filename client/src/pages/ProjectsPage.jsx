@@ -48,33 +48,6 @@ export default function ProjectsPage() {
     }
   };
 
-  const handleCreateSamplePartner = async () => {
-    const token = localStorage.getItem('token');
-    const samplePartner = {
-      name: "Công ty Đối tác Mẫu",
-      code: `PARTNER_${Date.now().toString().slice(-4)}`,
-      description: "Một đối tác công nghệ chiến lược.",
-      contact: { primaryContact: { name: "Người liên hệ A", email: "contact@partner.com" } },
-      business: { type: "enterprise" }
-    };
-    try {
-      const res = await fetch('/api/partners', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(samplePartner)
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert('Tạo đối tác mẫu thành công! Giờ bạn có thể chọn nó khi tạo dự án.');
-        fetchData(); // Tải lại dữ liệu để có partner mới
-      } else {
-        alert('Lỗi khi tạo đối tác mẫu: ' + data.message);
-      }
-    } catch {
-      alert('Lỗi nghiêm trọng khi tạo đối tác mẫu.');
-    }
-  };
-
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
@@ -185,12 +158,6 @@ export default function ProjectsPage() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <button
-            onClick={handleCreateSamplePartner}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
-          >
-            Tạo Đối tác Mẫu
-          </button>
         <button
           onClick={() => setShowCreateModal(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
@@ -278,12 +245,12 @@ export default function ProjectsPage() {
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>Tiến độ</span>
-                  <span>{project.progress || 0}%</span>
+                  <span>{project.status === 'completed' ? 100 : (typeof project.progress === 'number' ? project.progress : 0)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${project.progress || 0}%` }}
+                    style={{ width: `${project.status === 'completed' ? 100 : (typeof project.progress === 'number' ? project.progress : 0)}%` }}
                   ></div>
                 </div>
               </div>

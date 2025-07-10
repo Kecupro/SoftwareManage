@@ -9,26 +9,44 @@ export default function DashboardPage() {
     const [stats, setStats] = useState({
         totalProjects: 0,
         activeProjects: 0,
+        completedProjects: 0,
         totalTasks: 0,
         completedTasks: 0,
         totalBugs: 0,
         resolvedBugs: 0,
         currentSprint: null,
-        recentActivities: []
+        recentProjects: [],
+        myTasks: [],
+        recentBugs: []
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get('/api/dashboard/stats');
-                setStats(response.data.data);
+                const response = await axios.get('/api/dashboard/overview');
+                const data = response.data.data;
+                setStats({
+                    totalProjects: data.overview.projects.total,
+                    activeProjects: data.overview.projects.active,
+                    completedProjects: data.overview.projects.completed,
+                    totalTasks: data.overview.tasks.total,
+                    completedTasks: data.overview.tasks.completed,
+                    totalBugs: data.overview.bugs.total,
+                    resolvedBugs: data.overview.bugs.resolved,
+                    currentSprint: data.overview.sprints && data.overview.sprints.active > 0 ? { name: `Sprint đang chạy`, progress: 0 } : null, // Có thể sửa lại nếu backend trả về sprint cụ thể
+                    recentProjects: data.recentProjects || [],
+                    myTasks: data.myTasks || [],
+                    recentBugs: data.recentBugs || []
+                });
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
                 // Fallback data for demo
                 setStats({
                     totalProjects: 12,
                     activeProjects: 8,
+                    completedProjects: 4,
                     totalTasks: 156,
                     completedTasks: 89,
                     totalBugs: 23,
@@ -39,40 +57,16 @@ export default function DashboardPage() {
                         endDate: '2024-01-28',
                         progress: 65
                     },
-                    recentActivities: [
-                        { id: 1, type: 'task', message: 'Task "Implement login feature" completed', time: '2 hours ago' },
-                        { id: 2, type: 'bug', message: 'Bug "Payment not working" reported', time: '4 hours ago' },
-                        { id: 3, type: 'sprint', message: 'Sprint 3 started', time: '1 day ago' },
-                        { id: 4, type: 'project', message: 'New project "E-commerce Platform" created', time: '2 days ago' }
-                    ]
+                    recentProjects: [],
+                    myTasks: [],
+                    recentBugs: []
                 });
             } finally {
                 setLoading(false);
             }
         };
-
         fetchDashboardData();
     }, []);
-
-    const getStatusColor = (type) => {
-        const colors = {
-            task: 'bg-green-100 text-green-800',
-            bug: 'bg-red-100 text-red-800',
-            sprint: 'bg-blue-100 text-blue-800',
-            project: 'bg-purple-100 text-purple-800'
-        };
-        return colors[type] || 'bg-gray-100 text-gray-800';
-    };
-
-    const getStatusIcon = (type) => {
-        const icons = {
-            task: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-            bug: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z',
-            sprint: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-            project: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-        };
-        return icons[type] || 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
-    };
 
     if (loading) {
         return (
@@ -238,47 +232,59 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* Recent Activities */}
-            <div className="bg-white shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Hoạt động gần đây
-                    </h3>
-                    <div className="flow-root">
-                        <ul className="-mb-8">
-                            {stats.recentActivities.map((activity, activityIdx) => (
-                                <li key={activity.id}>
-                                    <div className="relative pb-8">
-                                        {activityIdx !== stats.recentActivities.length - 1 ? (
-                                            <span
-                                                className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                                                aria-hidden="true"
-                                            />
-                                        ) : null}
-                                        <div className="relative flex space-x-3">
-                                            <div>
-                                                <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${getStatusColor(activity.type)}`}>
-                                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={getStatusIcon(activity.type)} />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                                <div>
-                                                    <p className="text-sm text-gray-500">{activity.message}</p>
-                                                </div>
-                                                <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                                                    <time>{activity.time}</time>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+            {/* Recent Projects */}
+            {stats.recentProjects && stats.recentProjects.length > 0 && (
+                <div className="bg-white shadow rounded-lg mt-6">
+                    <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            Dự án gần đây
+                        </h3>
+                        <ul>
+                            {stats.recentProjects.map((project, idx) => (
+                                <li key={project._id || idx} className="mb-2">
+                                    <span className="font-semibold">{project.name}</span> ({project.code}) - <span className="text-sm text-gray-500">{project.status}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </div>
-            </div>
+            )}
+            {/* My Tasks */}
+            {stats.myTasks && stats.myTasks.length > 0 && (
+                <div className="bg-white shadow rounded-lg mt-6">
+                    <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            Tasks của bạn
+                        </h3>
+                        <ul>
+                            {stats.myTasks.map((task, idx) => (
+                                <li key={task._id || idx} className="mb-2">
+                                    <span className="font-semibold">{task.title}</span> - <span className="text-sm text-gray-500">{task.status}</span>
+                                    {task.project && <span className="ml-2 text-xs text-blue-600">[{task.project.name}]</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
+            {/* Recent Bugs */}
+            {stats.recentBugs && stats.recentBugs.length > 0 && (
+                <div className="bg-white shadow rounded-lg mt-6">
+                    <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            Bugs gần đây
+                        </h3>
+                        <ul>
+                            {stats.recentBugs.map((bug, idx) => (
+                                <li key={bug._id || idx} className="mb-2">
+                                    <span className="font-semibold">{bug.title}</span> - <span className="text-sm text-gray-500">{bug.status}</span>
+                                    {bug.project && <span className="ml-2 text-xs text-blue-600">[{bug.project.name}]</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -198,6 +198,22 @@ export default function ModuleDetailPage() {
       case 'overview':
         return (
           <div className="space-y-6">
+            {/* Thông tin tổng quan module */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Thông tin Module</h2>
+                <div className="mb-2"><span className="font-medium">Tên module:</span> {item.name}</div>
+                <div className="mb-2"><span className="font-medium">Mã:</span> {item.code}</div>
+                <div className="mb-2"><span className="font-medium">Mô tả:</span> {item.description}</div>
+                <div className="mb-2"><span className="font-medium">Trạng thái:</span> <span className={`px-2 py-1 rounded ${getStatusColor(item.status)}`}>{item.status}</span></div>
+                <div className="mb-2"><span className="font-medium">Độ ưu tiên:</span> <span className={`px-2 py-1 rounded ${getPriorityColor(item.priority)}`}>{getPriorityText(item.priority)}</span></div>
+                {/* Người thực hiện */}
+                <div className="mb-2"><span className="font-medium">Người thực hiện:</span> {item.manager?.fullName || 'Chưa gán'}</div>
+                {/* Người bàn giao */}
+                <div className="mb-2"><span className="font-medium">Người bàn giao:</span> {item.delivery?.deliveredBy?.fullName || item.delivery?.deliveredBy?.username || 'Chưa bàn giao'}</div>
+              </div>
+              {/* Có thể bổ sung thêm các thông tin khác ở cột phải */}
+            </div>
             {/* Thông tin riêng cho Module Request */}
             {isRequestPage && (
               <div className="space-y-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -232,10 +248,10 @@ export default function ModuleDetailPage() {
                 </div>
               </div>
             )}
-            {/* Form bàn giao module thực tế */}
-            {!isRequestPage && item.status === 'completed' && (
-              <div className="my-6">
-                <h3 className="text-lg font-medium mb-2">Bàn giao module</h3>
+            {/* Form bàn giao module */}
+            {!isRequestPage && item.status !== 'delivered' && item.status !== 'accepted' && (
+              <div className="mt-8">
+                <h2 className="text-lg font-semibold mb-2">Bàn giao module</h2>
                 <ModuleDeliveryForm moduleId={item._id} onDelivered={fetchDetails} />
               </div>
             )}

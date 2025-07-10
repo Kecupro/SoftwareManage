@@ -1,19 +1,22 @@
-# Sử dụng một image Node.js gọn nhẹ làm nền tảng
-FROM node:20-alpine
-
-# Tạo và đặt thư mục làm việc bên trong container là /app
-WORKDIR /app
-
-# Sao chép package.json và package-lock.json vào trước
-# Điều này tận dụng cơ chế caching của Docker, giúp build nhanh hơn ở các lần sau
-COPY package*.json ./
-
-# Cài đặt các thư viện cần thiết một cách an toàn
+# Build frontend
+FROM node:20 AS build-frontend
+WORKDIR /app/client
+COPY client/package*.json ./
 RUN npm ci
+COPY client/ .
+RUN npm run build
 
-# Sao chép toàn bộ mã nguồn còn lại của dự án vào thư mục làm việc
-COPY . .
+# Build backend
+FROM node:20 AS build-backend
+WORKDIR /app
+COPY server/package*.json ./
+RUN npm ci
+COPY server/ .
+# Copy frontend build vào backend
+COPY --from=build-frontend /app/client/dist ./client/dist
 
-# Lệnh sẽ được thực thi khi container khởi chạy
-# (Trong ví dụ của chúng ta, nó sẽ chạy file app.js)
-CMD [ "node", "app.js" ]
+# Expose port
+EXPOSE 5000
+
+# Start server
+CMD ["node", "server.js"]

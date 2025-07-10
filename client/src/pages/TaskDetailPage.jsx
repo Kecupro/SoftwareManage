@@ -2,15 +2,20 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import FileUpload from '../components/FileUpload';
 import FileList from '../components/FileList';
+import { useAuth } from '../context/AuthContext';
 
 export default function TaskDetailPage() {
   const { id } = useParams();
+  const { user: currentUser } = useAuth();
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [showLogHoursModal, setShowLogHoursModal] = useState(false);
   const [hoursToLog, setHoursToLog] = useState('');
   const [newComment, setNewComment] = useState('');
+  const [approveNote, setApproveNote] = useState('');
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [approveError, setApproveError] = useState('');
 
   useEffect(() => {
     fetchTaskDetails();
@@ -28,17 +33,21 @@ export default function TaskDetailPage() {
       if (data.success) {
         setTask(data.data.task);
       }
-    } catch (error) {
-      console.error('Error fetching task details:', error);
+    } catch {
+      alert('Cập nhật trạng thái thất bại!');
     } finally {
       setLoading(false);
     }
   };
 
+  const canUpdateStatus = task && currentUser && task.assignee && task.assignee._id === currentUser._id;
+  const canApprove = task && currentUser && (currentUser.role === 'qa' || currentUser.role === 'reviewer');
+
   const handleStatusChange = async (newStatus) => {
+    if (!canUpdateStatus) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`/api/tasks/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -49,12 +58,9 @@ export default function TaskDetailPage() {
       if (!res.ok) throw new Error('Failed to update status');
       const data = await res.json();
       if (data.success) {
-        setTask(prevTask => ({ ...prevTask, status: newStatus }));
-        // Optionally, refetch everything to get the latest history entry
         fetchTaskDetails();
       }
-    } catch (error) {
-      console.error('Error updating task status:', error);
+    } catch {
       alert('Cập nhật trạng thái thất bại!');
     }
   };
@@ -79,8 +85,7 @@ export default function TaskDetailPage() {
       } else {
         alert('Lỗi: ' + data.message);
       }
-    } catch (error) {
-      console.error('Error logging hours:', error);
+    } catch {
       alert('Cập nhật giờ làm thất bại!');
     }
   };
@@ -109,21 +114,37 @@ export default function TaskDetailPage() {
       } else {
         alert('Lỗi: ' + data.message);
       }
-    } catch (error) {
-      console.error('Error posting comment:', error);
+    } catch {
       alert('Gửi bình luận thất bại!');
     }
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      todo: 'bg-gray-200 text-gray-800',
-      'in-progress': 'bg-blue-200 text-blue-800',
-      'in-review': 'bg-purple-200 text-purple-800',
-      done: 'bg-green-200 text-green-800',
-      blocked: 'bg-red-200 text-red-800'
-    };
-    return colors[status] || 'bg-gray-200 text-gray-800';
+  const handleApprove = async (status) => {
+    if (!canApprove) return;
+    setApproveLoading(true);
+    setApproveError('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/tasks/${id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status, note: approveNote })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTaskDetails();
+        setApproveNote('');
+      } else {
+        setApproveError(data.message || 'Lỗi khi duyệt');
+      }
+    } catch {
+      setApproveError('Lỗi kết nối server');
+    } finally {
+      setApproveLoading(false);
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -359,17 +380,23 @@ export default function TaskDetailPage() {
           </p>
         </div>
         <div className="flex space-x-2 items-center">
-          <select
-            value={task.status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className={`px-3 py-1 text-sm font-medium rounded-full border-2 ${getStatusColor(task.status)}`}
-          >
-            <option value="todo">Chưa bắt đầu</option>
-            <option value="in-progress">Đang thực hiện</option>
-            <option value="in-review">Đang review</option>
-            <option value="done">Hoàn thành</option>
-            <option value="blocked">Bị chặn</option>
-          </select>
+          {canUpdateStatus && (
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => handleStatusChange('in-progress')} className="bg-blue-500 text-white px-3 py-1 rounded">Bắt đầu</button>
+              <button onClick={() => handleStatusChange('done')} className="bg-green-600 text-white px-3 py-1 rounded">Mark as Done</button>
+            </div>
+          )}
+          {canApprove && (
+            <div className="mt-4">
+              <label className="block font-medium mb-1">Ghi chú duyệt</label>
+              <textarea value={approveNote} onChange={e => setApproveNote(e.target.value)} className="w-full border rounded px-2 py-1 mb-2" rows={2} />
+              {approveError && <div className="text-red-600 text-sm mb-2">{approveError}</div>}
+              <div className="flex gap-2">
+                <button disabled={approveLoading} onClick={() => handleApprove('accepted')} className="bg-green-600 text-white px-3 py-1 rounded">Duyệt task</button>
+                <button disabled={approveLoading} onClick={() => handleApprove('rejected')} className="bg-red-600 text-white px-3 py-1 rounded">Từ chối</button>
+              </div>
+            </div>
+          )}
           <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityColor(task.priority)}`}>
             {getPriorityText(task.priority)}
           </span>

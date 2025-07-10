@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import FileManager from '../components/FileManager';
 import PartnerProjectList from '../components/PartnerProjectList';
-import PartnerModuleList from '../components/PartnerModuleList';
+import PartnerProjectDetail from '../components/PartnerProjectDetail';
 import PartnerModuleRequestForm from '../components/PartnerModuleRequestForm';
 import PartnerDashboard from '../components/PartnerDashboard';
 import NotificationDropdown from '../components/NotificationDropdown';
@@ -13,7 +13,7 @@ export default function PartnerPortalPage() {
   const { showError } = useNotifications();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedModule, setSelectedModule] = useState(null);
+  const [viewingProjectDetail, setViewingProjectDetail] = useState(false);
 
   // Kiểm tra quyền đối tác
   useEffect(() => {
@@ -36,7 +36,6 @@ export default function PartnerPortalPage() {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'projects', name: 'Dự án', icon: '📁' },
-    { id: 'modules', name: 'Module', icon: '🧩' },
     { id: 'module-requests', name: 'Yêu cầu Module', icon: '📝' },
     { id: 'documents', name: 'Tài liệu', icon: '📄' }
   ];
@@ -91,20 +90,22 @@ export default function PartnerPortalPage() {
           <PartnerDashboard user={user} />
         )}
 
-        {activeTab === 'projects' && (
+        {activeTab === 'projects' && !viewingProjectDetail && (
           <PartnerProjectList 
             user={user}
             onProjectSelect={setSelectedProject}
             selectedProject={selectedProject}
+            onViewDetail={(project) => {
+              setSelectedProject(project);
+              setViewingProjectDetail(true);
+            }}
           />
         )}
 
-        {activeTab === 'modules' && (
-          <PartnerModuleList 
-            user={user}
-            selectedProject={selectedProject}
-            onModuleSelect={setSelectedModule}
-            selectedModule={selectedModule}
+        {activeTab === 'projects' && viewingProjectDetail && selectedProject && (
+          <PartnerProjectDetail
+            project={selectedProject}
+            onBack={() => setViewingProjectDetail(false)}
           />
         )}
 
@@ -122,36 +123,24 @@ export default function PartnerPortalPage() {
                 Quản lý tài liệu
               </h2>
               <p className="text-gray-600 mb-4">
-                Upload và quản lý tài liệu liên quan đến dự án của bạn
+                Upload và quản lý tài liệu chung của đối tác
               </p>
               
-              {selectedProject ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-md font-medium text-gray-900">
-                      Tài liệu dự án: {selectedProject.name}
+                    Tài liệu chung
                     </h3>
                     <span className="text-sm text-gray-500">
-                      Project ID: {selectedProject.id}
+                    Partner ID: {user.id}
                     </span>
                   </div>
                   <FileManager 
-                    entityType="project"
-                    entityId={selectedProject.id}
-                    description="Tài liệu dự án đối tác"
+                  entityType="partner"
+                  entityId={user.id}
+                  description="Tài liệu chung của đối tác"
                   />
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Chưa chọn dự án</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Vui lòng chọn một dự án từ tab "Dự án" để quản lý tài liệu
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         )}
