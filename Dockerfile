@@ -9,9 +9,8 @@ RUN npm run build
 # Build backend
 FROM node:20 AS build-backend
 WORKDIR /app
-COPY server/package.json ./
-COPY server/package-lock.json ./
-RUN npm ci
+COPY server/package*.json ./
+RUN npm install
 COPY server/ .
 # Copy frontend build vào backend
 COPY --from=build-frontend /app/client/dist ./client/dist
