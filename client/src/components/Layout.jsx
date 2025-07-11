@@ -199,7 +199,7 @@ export default function Layout() {
         <div className="md:hidden">
           <div className="fixed inset-0 z-40 flex">
             <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gray-800">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
               <div className="absolute top-0 right-0 -mr-12 pt-2">
                 <button
                   type="button"
@@ -207,11 +207,79 @@ export default function Layout() {
                   onClick={() => setSidebarOpen(false)}
                 >
                   <span className="sr-only">Close sidebar</span>
-                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
+              {/* Sidebar content (copy from desktop) */}
+              <div className="flex flex-col w-64 h-full">
+                <div className="flex flex-col h-0 flex-1 ">
+                  <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                    <div className="flex items-center flex-shrink-0 px-4">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0"></div>
+                        <div className="ml-3">
+                          <img src="/viettelsol.png" alt="Logo" className="w-full h-20" />
+                        </div>
+                      </div>
+                    </div>
+                    <nav className="mt-5 flex-1 px-2 space-y-1">
+                      {navigation.map((item) => {
+                        const isActive = location.pathname.startsWith(item.href);
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={`${
+                              isActive
+                                ? 'bg-red-600 text-white'
+                                : 'text-black hover:bg-red-600 hover:text-white'
+                            } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                            onClick={() => setSidebarOpen(false)}
+                          >
+                            <svg
+                              className={`${
+                                isActive ? 'text-white' : 'text-red-600 group-hover:text-white'
+                              } mr-3 flex-shrink-0 h-6 w-6`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                            </svg>
+                            {item.name}
+                          </Link>
+                        );
+                      })}
+                    </nav>
+                  </div>
+                  <div className="flex-shrink-0 flex bg-red-600 p-4">
+                    <div className="flex items-center">
+                      <div>
+                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+                          <span className="text-sm font-medium text-red-600">
+                            {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-white">{user?.fullName || user?.username}</p>
+                        <p className="text-xs text-gray-300">{getRoleDisplayName(user?.role)}</p>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="ml-5 flex-shrink-0 bg-white p-1 rounded-md text-black hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                      >
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* End sidebar content */}
             </div>
           </div>
         </div>

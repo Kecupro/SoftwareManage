@@ -32,80 +32,72 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-                        <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+        <div className="min-h-screen flex flex-col md:flex-row bg-white">
+            {/* Left: Logo, hotline, illustration, background image */}
+            <div className="md:w-1/2 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200" style={{backgroundImage: 'url(/banner.svg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+                {/* Overlay for readability */}
+                <div className="absolute inset-0 bg-[#d80027]/70 md:bg-[#d80027]/60" style={{zIndex: 1}}></div>
+                <div className="relative z-10 flex flex-col items-center w-full">
+                    <img src="/viettelsol.png" alt="Logo" className="w-40 mb-4 drop-shadow-lg bg-white rounded-full p-2" />
+                    <div className="text-3xl font-bold text-white mb-2">Hệ thống phát triển phần mềm</div>
+                    <div className="text-gray-100 text-lg mb-4">Cùng bạn đồng hành, cùng nhau phát triển.</div>
+                    <img src="https://img.freepik.com/free-vector/customer-support-flat-illustration_23-2148887720.jpg?w=400" alt="Hotline" className="w-56 h-40 object-contain mb-4 rounded-lg shadow-lg border-4 border-white" />
+                    <div className="text-gray-100 text-sm flex flex-col items-center mt-2">
+                        <span className="font-semibold">Tổng đài CSKH: 18008000 nhánh 1</span>
                     </div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Hệ thống Quản lý Phát triển Phần mềm
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Đăng nhập để truy cập hệ thống
-                    </p>
                 </div>
-                
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div>
-                            <label htmlFor="email" className="sr-only">
-                                Email
-                            </label>
+            </div>
+            {/* Right: Login Form */}
+            <div className="md:w-1/2 flex flex-col justify-center items-center p-8 bg-white">
+                <div className="w-full max-w-md">
+                    <h2 className="text-2xl font-bold text-[#d80027] text-center mb-2 uppercase">Đăng nhập</h2>
+                    <div className="text-center text-gray-700 mb-6 text-base font-semibold">
+                        Vui lòng đăng nhập để tiếp tục sử dụng hệ thống
+                    </div>
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        <div className="relative">
+                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12A4 4 0 118 12a4 4 0 018 0zM12 14v2m0 4h.01" />
+                                </svg>
+                            </span>
                             <input
                                 id="email"
                                 name="email"
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                placeholder="Email"
+                                className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#d80027] focus:border-[#d80027]"
+                                placeholder="Tên đăng nhập"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        <div>
-                            <label htmlFor="password" className="sr-only">
-                                Mật khẩu
-                            </label>
+                        <div className="relative">
+                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4" />
+                                </svg>
+                            </span>
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                                className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#d80027] focus:border-[#d80027]"
                                 placeholder="Mật khẩu"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-                    </div>
-
-                    {error && (
-                        <div className="rounded-md bg-red-50 p-4">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-red-800">
-                                        {error}
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    <div>
+                        {error && (
+                            <div className="rounded bg-red-50 p-3 text-red-700 text-sm">{error}</div>
+                        )}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center py-2 px-4 rounded bg-[#d80027] text-white font-semibold hover:bg-[#b3001b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow"
                         >
                             {loading ? (
                                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -113,39 +105,37 @@ export default function LoginPage() {
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                             ) : (
-                                <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                </svg>
+                                <span className="mr-2">🔒</span>
                             )}
                             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                         </button>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-xs text-gray-500">
-                            Demo Account: admin@example.com / password123
-                        </p>
-                    </div>
-
-                    {/* Links */}
-                    <div className="mt-6 text-center space-y-2">
-                        <Link
-                            to="/forgot-password"
-                            className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
-                        >
-                            Quên mật khẩu?
-                        </Link>
-                        <div className="text-sm text-gray-500">
-                            Hoặc{' '}
-                            <Link
-                                to="/partner/login"
-                                className="text-blue-600 hover:text-blue-500 font-medium transition-colors"
-                            >
-                                đăng nhập Portal Đối Tác
-                            </Link>
+                        <div className="flex items-center justify-between mt-2">
+                            <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-[#d80027]">Quên mật khẩu?</Link>
+                            <label className="flex items-center text-sm text-gray-500 cursor-pointer">
+                                <input type="checkbox" className="mr-2" /> Đăng ký lần đầu
+                            </label>
+                        </div>
+                    </form>
+                    {/* Demo Account Info */}
+                    <div className="mt-6 p-4 bg-red-50 rounded-lg">
+                        <h3 className="text-sm font-medium text-red-900 mb-2">
+                            💡 Tài khoản demo
+                        </h3>
+                        <div className="text-xs text-red-700 space-y-1">
+                            <p><strong>Email:</strong> admin@example.com</p>
+                            <p><strong>Password:</strong> admin123</p>
                         </div>
                     </div>
-                </form>
+                    <div className="mt-8 text-center text-sm text-gray-700">
+                        Bạn là đối tác?{' '}
+                        <Link
+                            to="/partner/login"
+                            className="text-[#d80027] hover:underline font-semibold"
+                        >
+                            Đăng nhập tại đây
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );

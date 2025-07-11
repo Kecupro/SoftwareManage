@@ -23,25 +23,20 @@ export default function PartnerLoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!formData.email || !formData.password) {
       showError('Vui lòng nhập đầy đủ thông tin');
       return;
     }
-
     try {
       setLoading(true);
       const result = await login(formData.email, formData.password);
-      
       if (result.success) {
-        // Kiểm tra role của user
         const user = JSON.parse(localStorage.getItem('user'));
         if (user && user.role === 'partner') {
           showSuccess('Đăng nhập thành công! Chào mừng đến Portal Đối Tác');
-          navigate('/partner/portal');
+          navigate('truytruy/partner/portal');
         } else {
           showError('Tài khoản này không có quyền truy cập Portal Đối Tác');
-          // Logout nếu không phải partner
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
@@ -57,30 +52,35 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75M12 12a4 4 0 00-4-4h0a4 4 0 014-4h0a4 4 0 014 4h0a4 4 0 01-4 4z" />
-            </svg>
+    <div className="min-h-screen flex flex-col md:flex-row bg-white">
+      {/* Left: Logo, hotline, illustration, background image */}
+      <div className="md:w-1/2 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200" style={{backgroundImage: 'url(/breadcrum-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-blue-900/60" style={{zIndex: 1}}></div>
+        <div className="relative z-10 flex flex-col items-center w-full">
+          <img src="/viettelsol.png" alt="Logo" className="w-40 mb-4 drop-shadow-lg bg-white rounded-full p-2" />
+          <div className="text-3xl font-bold text-white mb-2">Portal Đối Tác</div>
+          <div className="text-indigo-100 text-lg mb-4">Kết nối & hợp tác phát triển dự án</div>
+          <img src="https://img.freepik.com/free-vector/customer-support-flat-illustration_23-2148887720.jpg?w=400" alt="Hotline" className="w-56 h-40 object-contain mb-4 rounded-lg shadow-lg border-4 border-white" />
+          <div className="text-indigo-100 text-sm flex flex-col items-center mt-2">
+            {/* <span className="font-semibold">Tổng đài CSKH: 18008000 nhánh 2</span> */}
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Portal Đối Tác
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Đăng nhập để truy cập hệ thống quản lý dự án
-          </p>
         </div>
-
-        {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email đối tác
-              </label>
+      </div>
+      {/* Right: Login Form */}
+      <div className="md:w-1/2 flex flex-col justify-center items-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          <h2 className="text-2xl font-bold text-indigo-700 text-center mb-2 uppercase">Đăng nhập Đối tác</h2>
+          <div className="text-center text-gray-700 mb-6 text-base font-semibold">
+            Đăng nhập để truy cập hệ thống quản lý dự án dành cho đối tác
+          </div>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12A4 4 0 118 12a4 4 0 018 0zM12 14v2m0 4h.01" />
+                </svg>
+              </span>
               <input
                 id="email"
                 name="email"
@@ -89,15 +89,16 @@ export default function PartnerLoginPage() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="partner@company.com"
+                className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+                placeholder="Email"
               />
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Mật khẩu
-              </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4" />
+                </svg>
+              </span>
               <input
                 id="password"
                 name="password"
@@ -106,62 +107,52 @@ export default function PartnerLoginPage() {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="••••••••"
+                className="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+                placeholder="Mật khẩu"
               />
             </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                {loading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Đang đăng nhập...
-                  </div>
-                ) : (
-                  'Đăng nhập'
-                )}
-              </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center py-2 px-4 rounded bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:from-blue-700 hover:to-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow"
+            >
+              {loading ? (
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <span className="mr-2">🔒</span>
+              )}
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </button>
+            <div className="flex items-center justify-between mt-2">
+              <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500 transition-colors">Quên mật khẩu?</Link>
+              <label className="flex items-center text-sm text-gray-500 cursor-pointer">
+                <input type="checkbox" className="mr-2" /> Đăng ký lần đầu
+              </label>
             </div>
           </form>
-
           {/* Demo Account Info */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">
+          <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
+            <h3 className="text-sm font-medium text-indigo-900 mb-2">
               💡 Tài khoản demo
             </h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Email:</strong> partner@techsolutions.com</p>
+            <div className="text-xs text-indigo-700 space-y-1">
+              <p><strong>Email:</strong> partner1@example.com</p>
               <p><strong>Password:</strong> partner123</p>
             </div>
           </div>
-
           {/* Links */}
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center text-sm text-gray-700">
+            Bạn là nhân viên nội bộ?{' '}
             <Link
               to="/login"
-              className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
+              className="text-indigo-600 hover:underline font-semibold"
             >
-              ← Quay lại trang đăng nhập chính
+              Đăng nhập tại đây
             </Link>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
-            Portal Đối Tác - Hệ thống quản lý dự án chuyên nghiệp
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            © 2024 Dev Management. All rights reserved.
-          </p>
         </div>
       </div>
     </div>
