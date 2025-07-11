@@ -3,11 +3,8 @@ const { body, validationResult } = require('express-validator');
 const Project = require('../models/project.model');
 const Partner = require('../models/partner.model');
 const { authMiddleware, checkRole, checkPermission, filterDataByScope } = require('../middleware/auth.middleware');
-const { fakeAuthMiddleware } = require('../middleware/fake-auth.middleware');
 const router = express.Router();
 const Module = require('../models/module.model');
-
-
 
 // Validation rules
 const projectValidation = [
@@ -39,7 +36,7 @@ const projectValidation = [
 // @route   GET /api/projects
 // @desc    Lấy danh sách dự án
 // @access  Private
-router.get('/', fakeAuthMiddleware, filterDataByScope('projects'), async (req, res) => {
+router.get('/', authMiddleware, filterDataByScope('projects'), async (req, res) => {
   try {
     const { page = 1, limit = 10, status, priority, partnerId, search } = req.query;
     
@@ -97,7 +94,7 @@ router.get('/', fakeAuthMiddleware, filterDataByScope('projects'), async (req, r
 // @route   GET /api/projects/:id
 // @desc    Lấy thông tin chi tiết dự án
 // @access  Private
-router.get('/:id', fakeAuthMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate('partner.id', 'name code contact business')
@@ -140,7 +137,7 @@ router.get('/:id', fakeAuthMiddleware, async (req, res) => {
 // @route   POST /api/projects
 // @desc    Tạo dự án mới
 // @access  Private (Admin, PM, BA)
-router.post('/', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), projectValidation, async (req, res) => {
+router.post('/', authMiddleware, checkRole(['admin', 'pm', 'ba']), projectValidation, async (req, res) => {
   try {
     // Kiểm tra validation errors
     const errors = validationResult(req);
@@ -228,7 +225,7 @@ router.post('/', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), projectVa
 // @route   PUT /api/projects/:id
 // @desc    Cập nhật thông tin dự án
 // @access  Private (Admin, PM, BA)
-router.put('/:id', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), async (req, res) => {
+router.put('/:id', authMiddleware, checkRole(['admin', 'pm', 'ba']), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
@@ -337,7 +334,7 @@ router.put('/:id', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), async (
 // @route   DELETE /api/projects/:id
 // @desc    Xóa dự án
 // @access  Private (Admin only)
-router.delete('/:id', fakeAuthMiddleware, checkRole('admin'), async (req, res) => {
+router.delete('/:id', authMiddleware, checkRole('admin'), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
@@ -381,7 +378,7 @@ router.delete('/:id', fakeAuthMiddleware, checkRole('admin'), async (req, res) =
 // @route   GET /api/projects/:id/statistics
 // @desc    Lấy thống kê dự án
 // @access  Private
-router.get('/:id/statistics', fakeAuthMiddleware, async (req, res) => {
+router.get('/:id/statistics', authMiddleware, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
@@ -427,7 +424,7 @@ router.get('/:id/statistics', fakeAuthMiddleware, async (req, res) => {
 // @route   PUT /api/projects/:id/status
 // @desc    Cập nhật trạng thái dự án
 // @access  Private (Admin, PM)
-router.put('/:id/status', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.put('/:id/status', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const { status } = req.body;
     
