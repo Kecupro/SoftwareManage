@@ -17,7 +17,39 @@ const authMiddleware = async (req, res, next) => {
 
     const token = authHeader.substring(7); // Bỏ 'Bearer ' prefix
 
-    // Verify token
+    // Kiểm tra fake token
+    if (token.startsWith('fake-token-')) {
+      // Tạo fake user cho development
+      const fakeUser = {
+        _id: 'fake-user-id',
+        username: 'admin',
+        email: 'admin@example.com',
+        fullName: 'Administrator',
+        role: 'admin',
+        department: 'IT',
+        position: 'System Administrator',
+        isActive: true,
+        permissions: [
+          'users:read', 'users:create', 'users:update', 'users:delete',
+          'projects:read', 'projects:create', 'projects:update', 'projects:delete',
+          'modules:read', 'modules:create', 'modules:update', 'modules:delete',
+          'sprints:read', 'sprints:create', 'sprints:update', 'sprints:delete',
+          'tasks:read', 'tasks:create', 'tasks:update', 'tasks:delete',
+          'bugs:read', 'bugs:create', 'bugs:update', 'bugs:delete',
+          'reports:read', 'reports:create',
+          'partners:read', 'partners:create', 'partners:update', 'partners:delete'
+        ],
+        hasPermission: (permission) => {
+          return fakeUser.permissions.includes(permission);
+        },
+        canAccessData: () => true
+      };
+      
+      req.user = fakeUser;
+      return next();
+    }
+
+    // Verify JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     
     // Tìm user
