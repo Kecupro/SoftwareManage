@@ -35,27 +35,8 @@ const projectValidation = [
 
 // @route   GET /api/projects
 // @desc    Lấy danh sách dự án
-// @access  Public (Demo)
-router.get('/', async (req, res) => {
-  if (!req.user) {
-    // Trả về danh sách project demo
-    return res.json({
-      success: true,
-      data: {
-        projects: [
-          { id: 'prj1', name: 'Dự án Demo 1', code: 'DA01', status: 'active' },
-          { id: 'prj2', name: 'Dự án Demo 2', code: 'DA02', status: 'completed' }
-        ],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalProjects: 2,
-          hasNextPage: false,
-          hasPrevPage: false
-        }
-      }
-    });
-  }
+// @access  Private
+router.get('/', authMiddleware, filterDataByScope('projects'), async (req, res) => {
   try {
     const { page = 1, limit = 10, status, priority, partnerId, search } = req.query;
     
@@ -112,42 +93,8 @@ router.get('/', async (req, res) => {
 
 // @route   GET /api/projects/:id
 // @desc    Lấy thông tin chi tiết dự án
-// @access  Public (Demo)
-router.get('/:id', async (req, res) => {
-  if (!req.user) {
-    // Trả về chi tiết project demo
-    return res.json({
-      success: true,
-      data: {
-        project: {
-          id: req.params.id,
-          name: 'Dự án Demo 1',
-          code: 'DA01',
-          status: 'active',
-          description: 'Đây là dự án demo cho chế độ không cần đăng nhập.',
-          partner: { id: 'p1', name: 'Đối tác Demo 1', email: 'partner1@example.com' },
-          team: {
-            projectManager: { fullName: 'PM Demo' },
-            productOwner: { fullName: 'PO Demo' },
-            businessAnalyst: { fullName: 'BA Demo' },
-            developers: [{ fullName: 'Dev Demo' }],
-            testers: [{ fullName: 'Tester Demo' }],
-            devops: [{ fullName: 'DevOps Demo' }]
-          },
-          timeline: {
-            startDate: new Date(),
-            endDate: new Date(),
-            estimatedDuration: 30
-          },
-          priority: 'high',
-          tags: ['demo'],
-          category: 'Demo',
-          budget: { amount: 1000000, currency: 'VND' },
-          createdBy: { fullName: 'Admin Demo' }
-        }
-      }
-    });
-  }
+// @access  Private
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate('partner.id', 'name code contact business')

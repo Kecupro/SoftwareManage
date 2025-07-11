@@ -27,27 +27,8 @@ const partnerValidation = [
 
 // @route   GET /api/partners
 // @desc    Lấy danh sách đối tác
-// @access  Public (Demo)
-router.get('/', async (req, res) => {
-  if (!req.user) {
-    // Trả về danh sách partner demo
-    return res.json({
-      success: true,
-      data: {
-        partners: [
-          { id: 'p1', name: 'Đối tác Demo 1', email: 'partner1@example.com' },
-          { id: 'p2', name: 'Đối tác Demo 2', email: 'partner2@example.com' }
-        ],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalPartners: 2,
-          hasNextPage: false,
-          hasPrevPage: false
-        }
-      }
-    });
-  }
+// @access  Private
+router.get('/', authMiddleware, filterDataByScope('partners'), async (req, res) => {
   try {
     const { page = 1, limit = 10, status, search } = req.query;
     
@@ -282,17 +263,8 @@ router.delete('/:id', authMiddleware, checkRole('admin'), async (req, res) => {
 
 // @route   GET /api/partners/me/statistics
 // @desc    Lấy thống kê của đối tác hiện tại
-// @access  Public (Demo)
-router.get('/me/statistics', async (req, res) => {
-  if (!req.user) {
-    return res.json({
-      success: true,
-      data: {
-        partner: { id: 'p1', name: 'Đối tác Demo 1', code: 'DT01' },
-        statistics: { totalProjects: 1, totalModules: 1, totalDeliveries: 1 }
-      }
-    });
-  }
+// @access  Private (Partner only)
+router.get('/me/statistics', authMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -329,19 +301,8 @@ router.get('/me/statistics', async (req, res) => {
 
 // @route   GET /api/partners/me/activities
 // @desc    Lấy hoạt động gần đây của đối tác
-// @access  Public (Demo)
-router.get('/me/activities', async (req, res) => {
-  if (!req.user) {
-    return res.json({
-      success: true,
-      data: {
-        activities: [
-          { type: 'delivery', title: 'Bàn giao module: Module Demo 1', description: 'Module MD01 đã được bàn giao cho dự án Demo', timestamp: new Date(), entityId: 'mod1', entityType: 'module' },
-          { type: 'project', title: 'Cập nhật dự án: Dự án Đối tác Demo 1', description: 'Dự án DA01 đã được cập nhật', timestamp: new Date(), entityId: 'prj1', entityType: 'project' }
-        ]
-      }
-    });
-  }
+// @access  Private (Partner only)
+router.get('/me/activities', authMiddleware, checkRole('partner'), async (req, res) => {
   try {
     const partner = await Partner.findById(req.user.partnerId);
     
@@ -510,25 +471,8 @@ router.put('/:id/status', authMiddleware, checkRole(['admin', 'pm']), async (req
 
 // @route   GET /api/partners/me/projects
 // @desc    Lấy danh sách dự án của đối tác
-// @access  Public (Demo)
-router.get('/me/projects', async (req, res) => {
-  if (!req.user) {
-    return res.json({
-      success: true,
-      data: {
-        projects: [
-          { _id: 'prj1', name: 'Dự án Đối tác Demo 1', code: 'DA01', status: 'active', description: 'Dự án mẫu cho đối tác', timeline: { startDate: '2023-01-01', endDate: '2023-12-31' }, team: { developers: [{ fullName: 'Dev Demo' }] }, modules: [{ name: 'Module Demo', status: 'completed' }], progress: 80 }
-        ],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalProjects: 1,
-          hasNextPage: false,
-          hasPrevPage: false
-        }
-      }
-    });
-  }
+// @access  Private (Partner only)
+router.get('/me/projects', authMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);

@@ -25,7 +25,6 @@ export default function DashboardPage() {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
-                // Tạm thời bỏ auth để test
                 const response = await axios.get('/api/dashboard/overview');
                 const data = response.data.data;
                 setStats({
@@ -58,75 +57,9 @@ export default function DashboardPage() {
                         endDate: '2024-01-28',
                         progress: 65
                     },
-                    recentProjects: [
-                        {
-                            id: '1',
-                            name: 'Hệ thống Quản lý Khách hàng',
-                            status: 'active',
-                            progress: 75,
-                            partner: 'Công ty ABC'
-                        },
-                        {
-                            id: '2',
-                            name: 'Ứng dụng Mobile Banking',
-                            status: 'active',
-                            progress: 45,
-                            partner: 'Ngân hàng XYZ'
-                        },
-                        {
-                            id: '3',
-                            name: 'Website Thương mại Điện tử',
-                            status: 'completed',
-                            progress: 100,
-                            partner: 'Shop Online'
-                        }
-                    ],
-                    myTasks: [
-                        {
-                            id: '1',
-                            title: 'Thiết kế giao diện đăng nhập',
-                            status: 'in-progress',
-                            priority: 'high',
-                            dueDate: '2024-01-20'
-                        },
-                        {
-                            id: '2',
-                            title: 'Tích hợp API thanh toán',
-                            status: 'todo',
-                            priority: 'medium',
-                            dueDate: '2024-01-25'
-                        },
-                        {
-                            id: '3',
-                            title: 'Test tính năng báo cáo',
-                            status: 'completed',
-                            priority: 'low',
-                            dueDate: '2024-01-18'
-                        }
-                    ],
-                    recentBugs: [
-                        {
-                            id: '1',
-                            title: 'Lỗi hiển thị trên mobile',
-                            severity: 'medium',
-                            status: 'open',
-                            reportedBy: 'QA Team'
-                        },
-                        {
-                            id: '2',
-                            title: 'Không thể upload file lớn',
-                            severity: 'high',
-                            status: 'in-progress',
-                            reportedBy: 'User'
-                        },
-                        {
-                            id: '3',
-                            title: 'Lỗi validation email',
-                            severity: 'low',
-                            status: 'resolved',
-                            reportedBy: 'Developer'
-                        }
-                    ]
+                    recentProjects: [],
+                    myTasks: [],
+                    recentBugs: []
                 });
             } finally {
                 setLoading(false);

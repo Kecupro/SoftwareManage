@@ -11,29 +11,6 @@ const router = express.Router();
 // GET /api/dashboard/overview - Tổng quan dashboard
 router.get('/overview', async (req, res) => {
   try {
-    // Nếu không có user (không đăng nhập), trả về dữ liệu demo
-    if (!req.user) {
-      return res.json({
-        success: true,
-        data: {
-          overview: {
-            projects: { total: 3, active: 2, completed: 1, planning: 0 },
-            modules: { total: 5, completed: 2, inDevelopment: 2, testing: 1 },
-            sprints: { total: 2, active: 1, completed: 1 },
-            userStories: { total: 8, completed: 5, inProgress: 2, backlog: 1 },
-            tasks: { total: 10, completed: 7, inProgress: 2, todo: 1 },
-            bugs: { total: 4, open: 2, resolved: 2, critical: 0 }
-          },
-          recentProjects: [
-            { name: 'Dự án Demo 1', code: 'DA01', status: 'active', updatedAt: new Date() },
-            { name: 'Dự án Demo 2', code: 'DA02', status: 'completed', updatedAt: new Date() }
-          ],
-          myTasks: [],
-          recentBugs: []
-        }
-      });
-    }
-
     const userId = req.user._id;
     const userRole = req.user.role;
 

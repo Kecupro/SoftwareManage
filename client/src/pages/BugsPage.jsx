@@ -35,11 +35,11 @@ export default function BugsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Tạm thời bỏ token để test
+      const token = localStorage.getItem('token');
       const [bugsRes, projectsRes, usersRes] = await Promise.all([
-        fetch('/api/bugs'),
-        fetch('/api/projects'),
-        fetch('/api/auth/users')
+        fetch('/api/bugs', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/projects', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/auth/users', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       const bugsData = await bugsRes.json();
       const projectsData = await projectsRes.json();
@@ -49,77 +49,6 @@ export default function BugsPage() {
       if (usersData.success) setUsers(usersData.data.users || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Fallback demo data
-      setBugs([
-        {
-          id: '1',
-          title: 'Lỗi hiển thị trên mobile',
-          code: 'BUG-001',
-          description: 'Giao diện bị vỡ layout khi xem trên thiết bị mobile',
-          status: 'open',
-          severity: 'medium',
-          priority: 'medium',
-          type: 'ui',
-          project: { name: 'Hệ thống Quản lý Khách hàng' },
-          assignedTo: { fullName: 'Nguyễn Văn A' },
-          reportedBy: { fullName: 'QA Team' },
-          createdAt: '2024-01-15'
-        },
-        {
-          id: '2',
-          title: 'Không thể upload file lớn',
-          code: 'BUG-002',
-          description: 'Hệ thống báo lỗi khi upload file lớn hơn 10MB',
-          status: 'in-progress',
-          severity: 'high',
-          priority: 'high',
-          type: 'functional',
-          project: { name: 'Ứng dụng Mobile Banking' },
-          assignedTo: { fullName: 'Trần Thị B' },
-          reportedBy: { fullName: 'User' },
-          createdAt: '2024-01-18'
-        },
-        {
-          id: '3',
-          title: 'Lỗi validation email',
-          code: 'BUG-003',
-          description: 'Hệ thống chấp nhận email không hợp lệ',
-          status: 'resolved',
-          severity: 'low',
-          priority: 'low',
-          type: 'validation',
-          project: { name: 'Website Thương mại Điện tử' },
-          assignedTo: { fullName: 'Lê Văn C' },
-          reportedBy: { fullName: 'Developer' },
-          createdAt: '2024-01-10',
-          resolution: { resolvedAt: '2024-01-12' }
-        },
-        {
-          id: '4',
-          title: 'Lỗi timeout khi load dữ liệu',
-          code: 'BUG-004',
-          description: 'Trang báo cáo bị timeout khi load dữ liệu lớn',
-          status: 'testing',
-          severity: 'high',
-          priority: 'medium',
-          type: 'performance',
-          project: { name: 'Hệ thống Quản lý Khách hàng' },
-          assignedTo: { fullName: 'Phạm Thị D' },
-          reportedBy: { fullName: 'Admin' },
-          createdAt: '2024-01-20'
-        }
-      ]);
-      setProjects([
-        { id: '1', name: 'Hệ thống Quản lý Khách hàng' },
-        { id: '2', name: 'Ứng dụng Mobile Banking' },
-        { id: '3', name: 'Website Thương mại Điện tử' }
-      ]);
-      setUsers([
-        { id: '1', fullName: 'Nguyễn Văn A' },
-        { id: '2', fullName: 'Trần Thị B' },
-        { id: '3', fullName: 'Lê Văn C' },
-        { id: '4', fullName: 'Phạm Thị D' }
-      ]);
     } finally {
       setLoading(false);
     }
@@ -132,7 +61,7 @@ export default function BugsPage() {
       return;
     }
     try {
-      // Tạm thời bỏ token để test
+      const token = localStorage.getItem('token');
       const bugToCreate = {
         ...newBug,
         code: `BUG-${Date.now().toString().slice(-6).toUpperCase()}`,
@@ -149,7 +78,8 @@ export default function BugsPage() {
       const res = await fetch('/api/bugs', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(bugToCreate)
       });
