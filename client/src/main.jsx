@@ -8,14 +8,14 @@ import './index.css'
 // Thiết lập base URL cho axios
 import axios from 'axios'
 
-// Tự động detect environment
-const isDevelopment = import.meta.env.DEV;
-const baseURL = isDevelopment 
+// Force dùng domain hiện tại cho production
+const baseURL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5000' 
-  : window.location.origin; // Sẽ dùng domain hiện tại trong production
+  : window.location.origin;
 
 axios.defaults.baseURL = baseURL;
 console.log('🔗 API Base URL:', baseURL);
+console.log('🌐 Current hostname:', window.location.hostname);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

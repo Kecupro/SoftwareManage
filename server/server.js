@@ -12,17 +12,9 @@ dotenv.config();
 const app = express();
 
 // Security middleware với CSP cho phép Tailwind CDN
+// Tạm thời disable CSP để test
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://cdn.tailwindcss.com", "https://softwaremanage-production.up.railway.app"],
-    },
-  },
+  contentSecurityPolicy: false,
 }));
 
 // Rate limiting
