@@ -102,19 +102,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const demoUser = {
+    _id: "demo",
+    fullName: "Demo User",
+    email: "demo@example.com",
+    role: "admin", // hoặc "partner" nếu muốn mặc định là đối tác
+  };
+
   const value = {
-    user,
+    user: user || demoUser,
     token,
     loading,
     login,
     logout,
     updateProfile,
     changePassword,
-    isAuthenticated: !!user,
-    hasRole: (role) => user?.role === role,
+    isAuthenticated: !!(user || demoUser),
+    hasRole: (role) => (user || demoUser)?.role === role,
     hasPermission: (permission) => {
-      if (!user) return false;
-      return user.hasPermission ? user.hasPermission(permission) : false;
+      const u = user || demoUser;
+      return u.hasPermission ? u.hasPermission(permission) : false;
     }
   };
 
