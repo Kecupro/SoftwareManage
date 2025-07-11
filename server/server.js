@@ -11,8 +11,19 @@ dotenv.config();
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware với CSP cho phép Tailwind CDN
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://cdn.tailwindcss.com"],
+    },
+  },
+}));
 
 // Rate limiting
 // const limiter = rateLimit({
@@ -84,6 +95,13 @@ app.use('/api/bugs', authMiddleware, require('./routes/bug.routes'));
 app.use('/api/reports', authMiddleware, require('./routes/report.routes'));
 app.use('/api/notifications', authMiddleware, require('./routes/notifications.routes'));
 app.use('/api/users', authMiddleware, require('./routes/user.routes'));
+
+// Debug middleware để log API calls
+app.use('/api/*', (req, res, next) => {
+  console.log(`🔍 API Call: ${req.method} ${req.path}`);
+  console.log(`🔑 Auth Header: ${req.headers.authorization ? 'Present' : 'Missing'}`);
+  next();
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
