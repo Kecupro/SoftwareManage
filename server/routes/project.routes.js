@@ -35,8 +35,27 @@ const projectValidation = [
 
 // @route   GET /api/projects
 // @desc    Lấy danh sách dự án
-// @access  Private
-router.get('/', authMiddleware, filterDataByScope('projects'), async (req, res) => {
+// @access  Public (Demo)
+router.get('/', async (req, res) => {
+  if (!req.user) {
+    // Trả về danh sách project demo
+    return res.json({
+      success: true,
+      data: {
+        projects: [
+          { id: 'prj1', name: 'Dự án Demo 1', code: 'DA01', status: 'active' },
+          { id: 'prj2', name: 'Dự án Demo 2', code: 'DA02', status: 'completed' }
+        ],
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalProjects: 2,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }
+    });
+  }
   try {
     const { page = 1, limit = 10, status, priority, partnerId, search } = req.query;
     

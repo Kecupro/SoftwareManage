@@ -27,8 +27,27 @@ const partnerValidation = [
 
 // @route   GET /api/partners
 // @desc    Lấy danh sách đối tác
-// @access  Private
-router.get('/', authMiddleware, filterDataByScope('partners'), async (req, res) => {
+// @access  Public (Demo)
+router.get('/', async (req, res) => {
+  if (!req.user) {
+    // Trả về danh sách partner demo
+    return res.json({
+      success: true,
+      data: {
+        partners: [
+          { id: 'p1', name: 'Đối tác Demo 1', email: 'partner1@example.com' },
+          { id: 'p2', name: 'Đối tác Demo 2', email: 'partner2@example.com' }
+        ],
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalPartners: 2,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }
+    });
+  }
   try {
     const { page = 1, limit = 10, status, search } = req.query;
     
