@@ -25,7 +25,7 @@ app.use(helmet());
 // CORS middleware
 const corsOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',') 
-  : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'];
+  : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'https://softwaremanage-production.up.railway.app'];
 
 app.use(cors({
   origin: corsOrigins,
@@ -143,20 +143,28 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('🛑 SIGTERM received, shutting down gracefully');
-  mongoose.connection.close(() => {
+  try {
+    await mongoose.connection.close();
     console.log('✅ MongoDB connection closed');
     process.exit(0);
-  });
+  } catch (error) {
+    console.error('❌ Error closing MongoDB connection:', error);
+    process.exit(1);
+  }
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('🛑 SIGINT received, shutting down gracefully');
-  mongoose.connection.close(() => {
+  try {
+    await mongoose.connection.close();
     console.log('✅ MongoDB connection closed');
     process.exit(0);
-  });
+  } catch (error) {
+    console.error('❌ Error closing MongoDB connection:', error);
+    process.exit(1);
+  }
 });
 
 module.exports = app;

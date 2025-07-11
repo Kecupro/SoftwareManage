@@ -194,7 +194,6 @@ const projectSchema = new mongoose.Schema({
 });
 
 // Index để tối ưu truy vấn
-projectSchema.index({ code: 1 });
 projectSchema.index({ status: 1 });
 projectSchema.index({ 'partner.id': 1 });
 projectSchema.index({ 'team.projectManager': 1 });
