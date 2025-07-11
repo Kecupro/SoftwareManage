@@ -5,6 +5,15 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/user.model');
 const { authMiddleware, checkRole } = require('../middleware/auth.middleware');
 
+// Fake login credentials cho test
+const FAKE_USER = {
+  email: 'test@example.com',
+  password: 'test123',
+  username: 'testuser',
+  fullName: 'Test User',
+  role: 'admin'
+};
+
 const router = express.Router();
 
 // Validation rules
@@ -128,6 +137,50 @@ router.post('/register', registerValidation, async (req, res) => {
       message: 'Lỗi server'
     });
     }
+});
+
+// @route   POST /api/auth/fake-login
+// @desc    Fake login để test (TẠM THỜI)
+// @access  Public
+router.post('/fake-login', async (req, res) => {
+  try {
+    console.log('🔓 Fake login attempt');
+    
+    // Tạo JWT token cho fake user
+    const payload = {
+      userId: '507f1f77bcf86cd799439011',
+      username: FAKE_USER.username,
+      email: FAKE_USER.email,
+      role: FAKE_USER.role
+    };
+
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Fake login thành công',
+      data: {
+        user: {
+          id: payload.userId,
+          username: FAKE_USER.username,
+          email: FAKE_USER.email,
+          fullName: FAKE_USER.fullName,
+          role: FAKE_USER.role
+        },
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Fake login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server'
+    });
+  }
 });
 
 // @route   POST /api/auth/login
