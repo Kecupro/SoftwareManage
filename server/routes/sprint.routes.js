@@ -1,12 +1,12 @@
 const express = require('express');
 const Sprint = require('../models/sprint.model');
 const Task = require('../models/task.model');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
 // GET /api/sprints - Lấy danh sách sprint
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const { projectId } = req.query;
     const query = {};
@@ -34,7 +34,7 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // GET /api/sprints/:id - Lấy chi tiết sprint
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const sprintPromise = Sprint.findById(req.params.id)
       .populate('project', 'name code')
@@ -87,7 +87,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // POST /api/sprints - Tạo sprint mới
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const sprint = new Sprint({
       ...req.body,
@@ -112,7 +112,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // PUT /api/sprints/:id - Cập nhật sprint
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const sprint = await Sprint.findByIdAndUpdate(
       req.params.id,
@@ -143,7 +143,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // DELETE /api/sprints/:id - Xóa sprint
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const sprint = await Sprint.findByIdAndDelete(req.params.id);
 

@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
 const Notification = require('../models/notification.model');
 
 // @route   GET /api/notifications
 // @desc    Lấy danh sách thông báo của user
 // @access  Private
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const { page = 1, limit = 20, type, isRead } = req.query;
     const query = { user: req.user._id };
@@ -49,7 +49,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // @route   GET /api/notifications/unread-count
 // @desc    Lấy số lượng thông báo chưa đọc
 // @access  Private
-router.get('/unread-count', authMiddleware, async (req, res) => {
+router.get('/unread-count', fakeAuthMiddleware, async (req, res) => {
   try {
     const count = await Notification.getUnreadCount(req.user._id);
     res.json({
@@ -68,7 +68,7 @@ router.get('/unread-count', authMiddleware, async (req, res) => {
 // @route   PUT /api/notifications/:id/read
 // @desc    Đánh dấu thông báo đã đọc
 // @access  Private
-router.put('/:id/read', authMiddleware, async (req, res) => {
+router.put('/:id/read', fakeAuthMiddleware, async (req, res) => {
   try {
     const notification = await Notification.findOne({
       _id: req.params.id,
@@ -97,7 +97,7 @@ router.put('/:id/read', authMiddleware, async (req, res) => {
 // @route   PUT /api/notifications/mark-all-read
 // @desc    Đánh dấu tất cả thông báo đã đọc
 // @access  Private
-router.put('/mark-all-read', authMiddleware, async (req, res) => {
+router.put('/mark-all-read', fakeAuthMiddleware, async (req, res) => {
   try {
     await Notification.markAllAsRead(req.user._id);
     res.json({
@@ -116,7 +116,7 @@ router.put('/mark-all-read', authMiddleware, async (req, res) => {
 // @route   DELETE /api/notifications/:id
 // @desc    Xóa thông báo
 // @access  Private
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const notification = await Notification.findOneAndDelete({
       _id: req.params.id,

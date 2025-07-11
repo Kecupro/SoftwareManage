@@ -1,12 +1,12 @@
 const express = require('express');
 const Task = require('../models/task.model');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
 const { checkRole } = require('../middleware/role.middleware');
 
 const router = express.Router();
 
 // GET /api/tasks - Lấy danh sách tasks
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const { projectId } = req.query;
     const query = {};
@@ -37,7 +37,7 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // GET /api/tasks/:id - Lấy chi tiết task
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
       .populate('project', 'name')
@@ -70,7 +70,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // POST /api/tasks - Tạo task mới
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', fakeAuthMiddleware, async (req, res) => {
   try {
     // Xử lý dữ liệu trước khi tạo task
     const taskData = { ...req.body };
@@ -112,7 +112,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // PUT /api/tasks/:id - Cập nhật task
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
@@ -161,7 +161,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // POST /api/tasks/:id/comments - Thêm bình luận vào task
-router.post('/:id/comments', authMiddleware, async (req, res) => {
+router.post('/:id/comments', fakeAuthMiddleware, async (req, res) => {
   try {
     const { content } = req.body;
     if (!content) {
@@ -208,7 +208,7 @@ router.post('/:id/comments', authMiddleware, async (req, res) => {
 });
 
 // Cập nhật trạng thái task: chỉ assignedTo mới được cập nhật
-router.put('/:id/status', authMiddleware, async (req, res) => {
+router.put('/:id/status', fakeAuthMiddleware, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ success: false, message: 'Không tìm thấy task' });
@@ -230,7 +230,7 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
 });
 
 // Duyệt task: chỉ QA/Reviewer mới được duyệt
-router.post('/:id/approve', authMiddleware, checkRole(['qa', 'reviewer']), async (req, res) => {
+router.post('/:id/approve', fakeAuthMiddleware, checkRole(['qa', 'reviewer']), async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ success: false, message: 'Không tìm thấy task' });

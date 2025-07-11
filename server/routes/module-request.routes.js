@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const ModuleRequest = require('../models/module-request.model');
 const Module = require('../models/module.model');
-const { authMiddleware, checkRole } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware, checkRole } = require('../middleware/auth.middleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -37,7 +37,7 @@ const upload = multer({ storage });
 // @route   GET /api/module-requests
 // @desc    Lấy danh sách yêu cầu module (Admin/PM)
 // @access  Private (Admin, PM)
-router.get('/', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.get('/', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const { status, partnerId, projectId } = req.query;
     const query = {};
@@ -73,7 +73,7 @@ router.get('/', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => 
 // @route   GET /api/module-requests/:id
 // @desc    Lấy chi tiết yêu cầu module
 // @access  Private (Admin, PM, Partner)
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const request = await ModuleRequest.findById(req.params.id)
       .populate('partner', 'name code contact')
@@ -116,7 +116,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // @route   POST /api/module-requests
 // @desc    Tạo yêu cầu module mới
 // @access  Private (Partner)
-router.post('/', authMiddleware, checkRole('partner'), upload.array('attachments', 5), moduleRequestValidation, async (req, res) => {
+router.post('/', fakeAuthMiddleware, checkRole('partner'), upload.array('attachments', 5), moduleRequestValidation, async (req, res) => {
   try {
     console.log('Received module request data:', req.body);
     console.log('Files:', req.files);
@@ -234,7 +234,7 @@ router.post('/', authMiddleware, checkRole('partner'), upload.array('attachments
 // @route   POST /api/module-requests/:id/approve
 // @desc    Phê duyệt yêu cầu module và tạo module
 // @access  Private (Admin, PM)
-router.post('/:id/approve', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.post('/:id/approve', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const { reviewNote, estimatedEffort, technicalFeasibility, recommendedTechnologies, risks, suggestions } = req.body;
 
@@ -378,7 +378,7 @@ router.post('/:id/approve', authMiddleware, checkRole(['admin', 'pm']), async (r
 // @route   POST /api/module-requests/:id/reject
 // @desc    Từ chối yêu cầu module
 // @access  Private (Admin, PM)
-router.post('/:id/reject', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.post('/:id/reject', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const { reviewNote } = req.body;
 
@@ -462,7 +462,7 @@ router.post('/:id/reject', authMiddleware, checkRole(['admin', 'pm']), async (re
 // @route   PUT /api/module-requests/:id
 // @desc    Cập nhật yêu cầu module (chỉ cho phép đối tác cập nhật yêu cầu pending)
 // @access  Private (Partner)
-router.put('/:id', authMiddleware, checkRole('partner'), moduleRequestValidation, async (req, res) => {
+router.put('/:id', fakeAuthMiddleware, checkRole('partner'), moduleRequestValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

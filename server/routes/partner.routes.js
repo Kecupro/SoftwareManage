@@ -1,7 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Partner = require('../models/partner.model');
-const { authMiddleware, checkRole, checkPermission, filterDataByScope } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware, checkRole, checkPermission, filterDataByScope } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('../middleware/fake-auth.middleware');
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ const partnerValidation = [
 // @route   GET /api/partners
 // @desc    Lấy danh sách đối tác
 // @access  Private
-router.get('/', authMiddleware, filterDataByScope('partners'), async (req, res) => {
+router.get('/', fakeAuthMiddleware, filterDataByScope('partners'), async (req, res) => {
   try {
     const { page = 1, limit = 10, status, search } = req.query;
     
@@ -80,7 +81,7 @@ router.get('/', authMiddleware, filterDataByScope('partners'), async (req, res) 
 // @route   GET /api/partners/:id
 // @desc    Lấy thông tin chi tiết đối tác
 // @access  Private
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const partner = await Partner.findById(req.params.id);
     
@@ -115,7 +116,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // @route   POST /api/partners
 // @desc    Tạo đối tác mới
 // @access  Private (Admin, PM, BA)
-router.post('/', authMiddleware, checkRole(['admin', 'pm', 'ba']), partnerValidation, async (req, res) => {
+router.post('/', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), partnerValidation, async (req, res) => {
   try {
     // Kiểm tra validation errors
     const errors = validationResult(req);
@@ -168,7 +169,7 @@ router.post('/', authMiddleware, checkRole(['admin', 'pm', 'ba']), partnerValida
 // @route   PUT /api/partners/:id
 // @desc    Cập nhật thông tin đối tác
 // @access  Private (Admin, PM, BA)
-router.put('/:id', authMiddleware, checkRole(['admin', 'pm', 'ba']), partnerValidation, async (req, res) => {
+router.put('/:id', fakeAuthMiddleware, checkRole(['admin', 'pm', 'ba']), partnerValidation, async (req, res) => {
   try {
     // Kiểm tra validation errors
     const errors = validationResult(req);
@@ -225,7 +226,7 @@ router.put('/:id', authMiddleware, checkRole(['admin', 'pm', 'ba']), partnerVali
 // @route   DELETE /api/partners/:id
 // @desc    Xóa đối tác
 // @access  Private (Admin only)
-router.delete('/:id', authMiddleware, checkRole('admin'), async (req, res) => {
+router.delete('/:id', fakeAuthMiddleware, checkRole('admin'), async (req, res) => {
   try {
     const partner = await Partner.findById(req.params.id);
     if (!partner) {
@@ -264,7 +265,7 @@ router.delete('/:id', authMiddleware, checkRole('admin'), async (req, res) => {
 // @route   GET /api/partners/me/statistics
 // @desc    Lấy thống kê của đối tác hiện tại
 // @access  Private (Partner only)
-router.get('/me/statistics', authMiddleware, checkRole('partner'), async (req, res) => {
+router.get('/me/statistics', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -302,7 +303,7 @@ router.get('/me/statistics', authMiddleware, checkRole('partner'), async (req, r
 // @route   GET /api/partners/me/activities
 // @desc    Lấy hoạt động gần đây của đối tác
 // @access  Private (Partner only)
-router.get('/me/activities', authMiddleware, checkRole('partner'), async (req, res) => {
+router.get('/me/activities', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     const partner = await Partner.findById(req.user.partnerId);
     
@@ -375,7 +376,7 @@ router.get('/me/activities', authMiddleware, checkRole('partner'), async (req, r
 // @route   GET /api/partners/:id/statistics
 // @desc    Lấy thống kê đối tác
 // @access  Private
-router.get('/:id/statistics', authMiddleware, async (req, res) => {
+router.get('/:id/statistics', fakeAuthMiddleware, async (req, res) => {
   try {
     const partner = await Partner.findById(req.params.id);
     if (!partner) {
@@ -419,7 +420,7 @@ router.get('/:id/statistics', authMiddleware, async (req, res) => {
 // @route   PUT /api/partners/:id/status
 // @desc    Cập nhật trạng thái đối tác
 // @access  Private (Admin, PM)
-router.put('/:id/status', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.put('/:id/status', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const { status } = req.body;
     
@@ -472,7 +473,7 @@ router.put('/:id/status', authMiddleware, checkRole(['admin', 'pm']), async (req
 // @route   GET /api/partners/me/projects
 // @desc    Lấy danh sách dự án của đối tác
 // @access  Private (Partner only)
-router.get('/me/projects', authMiddleware, checkRole('partner'), async (req, res) => {
+router.get('/me/projects', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -531,7 +532,7 @@ router.get('/me/projects', authMiddleware, checkRole('partner'), async (req, res
 // @route   GET /api/partners/me/projects/:projectId/modules
 // @desc    Lấy danh sách module của dự án
 // @access  Private (Partner only)
-router.get('/me/projects/:projectId/modules', authMiddleware, checkRole('partner'), async (req, res) => {
+router.get('/me/projects/:projectId/modules', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -586,7 +587,7 @@ router.get('/me/projects/:projectId/modules', authMiddleware, checkRole('partner
 // @route   POST /api/partners/me/module-requests
 // @desc    Đối tác gửi yêu cầu tạo module mới
 // @access  Private (Partner only)
-router.post('/me/module-requests', authMiddleware, checkRole('partner'), async (req, res) => {
+router.post('/me/module-requests', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -708,7 +709,7 @@ router.post('/me/module-requests', authMiddleware, checkRole('partner'), async (
 // @route   GET /api/partners/me/module-requests
 // @desc    Lấy danh sách yêu cầu module của đối tác
 // @access  Private (Partner only)
-router.get('/me/module-requests', authMiddleware, checkRole('partner'), async (req, res) => {
+router.get('/me/module-requests', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -751,7 +752,7 @@ router.get('/me/module-requests', authMiddleware, checkRole('partner'), async (r
 // @route   POST /api/partners/me/modules/:moduleId/accept-delivery
 // @desc    Đối tác chấp nhận bàn giao module
 // @access  Private (Partner only)
-router.post('/me/modules/:moduleId/accept-delivery', authMiddleware, checkRole('partner'), async (req, res) => {
+router.post('/me/modules/:moduleId/accept-delivery', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     // Tìm partner dựa trên partnerId của user hiện tại
     const partner = await Partner.findById(req.user.partnerId);
@@ -861,7 +862,7 @@ router.post('/me/modules/:moduleId/accept-delivery', authMiddleware, checkRole('
 // @route   POST /api/partners/me/modules/:moduleId/reject-delivery
 // @desc    Đối tác từ chối bàn giao module
 // @access  Private (Partner only)
-router.post('/me/modules/:moduleId/reject-delivery', authMiddleware, checkRole('partner'), async (req, res) => {
+router.post('/me/modules/:moduleId/reject-delivery', fakeAuthMiddleware, checkRole('partner'), async (req, res) => {
   try {
     const { rejectionReason } = req.body;
 

@@ -1,11 +1,11 @@
 const express = require('express');
 const Bug = require('../models/bug.model');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
 // GET /api/bugs - Lấy danh sách bugs
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const { projectId } = req.query;
     const query = {};
@@ -36,7 +36,7 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // POST /api/bugs - Tạo bug mới
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', fakeAuthMiddleware, async (req, res) => {
   try {
     const bug = new Bug({
       ...req.body,
@@ -67,7 +67,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // PUT /api/bugs/:id - Cập nhật bug
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const bug = await Bug.findById(req.params.id);
 
@@ -105,7 +105,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // GET /api/bugs/:id - Lấy chi tiết bug
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', fakeAuthMiddleware, async (req, res) => {
   try {
     const bug = await Bug.findById(req.params.id)
       .populate('project', 'name code')
