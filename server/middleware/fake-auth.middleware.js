@@ -1,15 +1,30 @@
-// Fake auth middleware để test mà không cần đăng nhập
+// Fake auth middleware cho development
 const fakeAuthMiddleware = (req, res, next) => {
-  // Tạo fake user data
+  // Tạo fake user cho development
   req.user = {
-    _id: '507f1f77bcf86cd799439011',
-    username: 'testuser',
-    email: 'test@example.com',
+    _id: 'fake-user-id',
+    username: 'admin',
+    email: 'admin@example.com',
+    fullName: 'Administrator',
     role: 'admin',
-    name: 'Test User'
+    department: 'IT',
+    position: 'System Administrator',
+    isActive: true,
+    permissions: [
+      'users:read', 'users:create', 'users:update', 'users:delete',
+      'projects:read', 'projects:create', 'projects:update', 'projects:delete',
+      'modules:read', 'modules:create', 'modules:update', 'modules:delete',
+      'sprints:read', 'sprints:create', 'sprints:update', 'sprints:delete',
+      'tasks:read', 'tasks:create', 'tasks:update', 'tasks:delete',
+      'bugs:read', 'bugs:create', 'bugs:update', 'bugs:delete',
+      'reports:read', 'reports:create',
+      'partners:read', 'partners:create', 'partners:update', 'partners:delete'
+    ],
+    hasPermission: (permission) => {
+      return req.user.permissions.includes(permission);
+    },
+    canAccessData: () => true
   };
-  
-  console.log('🔓 Fake auth - User:', req.user.username);
   next();
 };
 

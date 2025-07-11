@@ -6,6 +6,8 @@ const { authMiddleware, checkRole, checkPermission, filterDataByScope } = requir
 const router = express.Router();
 const Module = require('../models/module.model');
 
+
+
 // Validation rules
 const projectValidation = [
   body('name')

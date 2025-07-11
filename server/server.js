@@ -70,23 +70,22 @@ require('./models/notification.model');
 
 // Import middleware
 const { authMiddleware } = require('./middleware/auth.middleware');
+const { fakeAuthMiddleware } = require('./middleware/fake-auth.middleware');
 
-// API routes - TẠM THỜI VÔ HIỆU HÓA AUTH ĐỂ TEST
+// API routes - Sử dụng fake auth middleware cho development
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/dashboard', require('./routes/dashboard.routes')); // Bỏ authMiddleware
-
-// Tạm thời comment out các routes khác để debug
-app.use('/api/partners', require('./routes/partner.routes')); // Bỏ authMiddleware
-app.use('/api/projects', require('./routes/project.routes')); // Bỏ authMiddleware
-app.use('/api/modules', require('./routes/module.routes')); // Bỏ authMiddleware
-app.use('/api/module-requests', require('./routes/module-request.routes')); // Bỏ authMiddleware
-app.use('/api/sprints', require('./routes/sprint.routes')); // Bỏ authMiddleware
-app.use('/api/user-stories', require('./routes/user-story.routes')); // Bỏ authMiddleware
-app.use('/api/tasks', require('./routes/task.routes')); // Bỏ authMiddleware
-app.use('/api/bugs', require('./routes/bug.routes')); // Bỏ authMiddleware
-app.use('/api/reports', require('./routes/report.routes')); // Bỏ authMiddleware
-app.use('/api/notifications', require('./routes/notifications.routes')); // Bỏ authMiddleware
-app.use('/api/users', require('./routes/user.routes')); // Bỏ authMiddleware
+app.use('/api/dashboard', fakeAuthMiddleware, require('./routes/dashboard.routes'));
+app.use('/api/partners', fakeAuthMiddleware, require('./routes/partner.routes'));
+app.use('/api/projects', fakeAuthMiddleware, require('./routes/project.routes'));
+app.use('/api/modules', fakeAuthMiddleware, require('./routes/module.routes'));
+app.use('/api/module-requests', fakeAuthMiddleware, require('./routes/module-request.routes'));
+app.use('/api/sprints', fakeAuthMiddleware, require('./routes/sprint.routes'));
+app.use('/api/user-stories', fakeAuthMiddleware, require('./routes/user-story.routes'));
+app.use('/api/tasks', fakeAuthMiddleware, require('./routes/task.routes'));
+app.use('/api/bugs', fakeAuthMiddleware, require('./routes/bug.routes'));
+app.use('/api/reports', fakeAuthMiddleware, require('./routes/report.routes'));
+app.use('/api/notifications', fakeAuthMiddleware, require('./routes/notifications.routes'));
+app.use('/api/users', fakeAuthMiddleware, require('./routes/user.routes'));
 
 // Debug middleware để log API calls
 app.use('/api/*', (req, res, next) => {
