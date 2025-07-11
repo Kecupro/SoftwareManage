@@ -4,6 +4,28 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 require('dotenv').config();
 
+// Fake auth middleware for testing - bypasses authentication
+const fakeAuthMiddleware = async (req, res, next) => {
+  try {
+    // Create a fake user for testing
+    req.user = {
+      _id: '507f1f77bcf86cd799439011', // Fake ObjectId
+      username: 'testuser',
+      fullName: 'Test User',
+      email: 'test@example.com',
+      role: 'admin',
+      isActive: true
+    };
+    next();
+  } catch (error) {
+    console.error('Fake auth middleware error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi xác thực'
+    });
+  }
+};
+
 const authMiddleware = async (req, res, next) => {
   try {
     // Lấy token từ header
@@ -189,6 +211,7 @@ const checkPartnerAccess = () => {
 
 module.exports = {
   authMiddleware,
+  fakeAuthMiddleware,
   checkPermission,
   checkRole,
   checkDataAccess,
