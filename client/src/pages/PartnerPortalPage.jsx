@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
 import FileManager from '../components/FileManager';
 import PartnerProjectList from '../components/PartnerProjectList';
 import PartnerProjectDetail from '../components/PartnerProjectDetail';
@@ -9,29 +8,18 @@ import PartnerDashboard from '../components/PartnerDashboard';
 import NotificationDropdown from '../components/NotificationDropdown';
 
 export default function PartnerPortalPage() {
-  const { user } = useAuth();
-  const { showError } = useNotifications();
+  const { user: realUser } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedProject, setSelectedProject] = useState(null);
   const [viewingProjectDetail, setViewingProjectDetail] = useState(false);
 
-  // Kiểm tra quyền đối tác
-  useEffect(() => {
-    if (user && user.role !== 'partner') {
-      showError('Bạn không có quyền truy cập trang đối tác');
-    }
-  }, [user, showError]);
-
-  if (!user || user.role !== 'partner') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Không có quyền truy cập</h1>
-          <p className="text-gray-600">Trang này chỉ dành cho đối tác</p>
-        </div>
-      </div>
-    );
-  }
+  // Fake user demo nếu chưa đăng nhập
+  const user = realUser && realUser.role === 'partner' ? realUser : {
+    id: 'partner-demo',
+    fullName: 'Đối tác Demo',
+    email: 'partner@example.com',
+    role: 'partner',
+  };
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },

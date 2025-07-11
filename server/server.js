@@ -49,7 +49,7 @@ mongoose.connect(process.env.MONGO_URI, {
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 })
-.then(() => console.log('✅ Kết nối MongoDB thành công!'))
+    .then(() => console.log('✅ Kết nối MongoDB thành công!'))
 .catch(err => {
   console.error('❌ Lỗi kết nối MongoDB:', err);
   console.error('❌ MONGO_URI:', process.env.MONGO_URI ? 'Đã set' : 'CHƯA SET');

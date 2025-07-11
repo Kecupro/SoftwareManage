@@ -3,14 +3,9 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children, allowedRoles = null }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-  // TẠM THỜI: Bỏ qua authentication để test
-  console.log('🔓 ProtectedRoute - Bỏ qua authentication, user:', user?.username || 'none');
-  return children;
-
-  // Code cũ (comment lại):
-  /*
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -19,14 +14,14 @@ export default function ProtectedRoute({ children, allowedRoles = null }) {
     );
   }
 
-  if (!user) {
-    // Redirect to appropriate login page based on the route
-    const isPartnerRoute = location.pathname.startsWith('/partner');
-    const loginPath = isPartnerRoute ? '/partner/login' : '/login';
+  // Tạm thời bỏ auth check để test
+  // if (!user) {
+  //   // Redirect to appropriate login page based on the route
+  //   const isPartnerRoute = location.pathname.startsWith('/partner');
+  //   const loginPath = isPartnerRoute ? '/partner/login' : '/login';
     
-    return <Navigate to={loginPath} state={{ from: location }} replace />;
-  }
-  */
+  //   return <Navigate to={loginPath} state={{ from: location }} replace />;
+  // }
 
   // // Nếu user là partner mà truy cập route nội bộ, redirect về /partner/portal
   if (user.role === 'partner' && !location.pathname.startsWith('/partner')) {

@@ -25,34 +25,23 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // TẠM THỜI: Tự động login fake user để test
+  // Kiểm tra token khi khởi động app
   useEffect(() => {
-    const autoLogin = async () => {
-      try {
-        console.log('🔓 Auto login fake user...');
-        const response = await axios.post('/api/auth/fake-login');
-        const { user: userData, token: newToken } = response.data.data;
-        
-        setUser(userData);
-        setToken(newToken);
-        localStorage.setItem('token', newToken);
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        console.log('✅ Auto login thành công:', userData.username);
-      } catch (error) {
-        console.error('❌ Auto login failed:', error);
-      } finally {
-        setLoading(false);
+    const checkAuth = async () => {
+      if (token) {
+        try {
+          const response = await axios.get('/api/auth/me');
+          setUser(response.data.data.user);
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          logout();
+        }
       }
+      setLoading(false);
     };
 
-    // Chỉ auto login nếu chưa có user
-    if (!user && !token) {
-      autoLogin();
-    } else {
-      setLoading(false);
-    }
-  }, [user, token]);
+    checkAuth();
+  }, [token]);
 
   const login = async (email, password) => {
     try {
