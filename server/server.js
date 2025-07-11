@@ -71,22 +71,22 @@ require('./models/notification.model');
 // Import middleware
 const { authMiddleware } = require('./middleware/auth.middleware');
 
-// API routes
+// API routes - Tạm thời bỏ auth middleware để test
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/dashboard', authMiddleware, require('./routes/dashboard.routes'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
 
-// Tạm thời comment out các routes khác để debug
-app.use('/api/partners', authMiddleware, require('./routes/partner.routes'));
-app.use('/api/projects', authMiddleware, require('./routes/project.routes'));
-app.use('/api/modules', authMiddleware, require('./routes/module.routes'));
-app.use('/api/module-requests', authMiddleware, require('./routes/module-request.routes'));
-app.use('/api/sprints', authMiddleware, require('./routes/sprint.routes'));
-app.use('/api/user-stories', authMiddleware, require('./routes/user-story.routes'));
-app.use('/api/tasks', authMiddleware, require('./routes/task.routes'));
-app.use('/api/bugs', authMiddleware, require('./routes/bug.routes'));
-app.use('/api/reports', authMiddleware, require('./routes/report.routes'));
-app.use('/api/notifications', authMiddleware, require('./routes/notifications.routes'));
-app.use('/api/users', authMiddleware, require('./routes/user.routes'));
+// Tạm thời bỏ auth middleware để test
+app.use('/api/partners', require('./routes/partner.routes'));
+app.use('/api/projects', require('./routes/project.routes'));
+app.use('/api/modules', require('./routes/module.routes'));
+app.use('/api/module-requests', require('./routes/module-request.routes'));
+app.use('/api/sprints', require('./routes/sprint.routes'));
+app.use('/api/user-stories', require('./routes/user-story.routes'));
+app.use('/api/tasks', require('./routes/task.routes'));
+app.use('/api/bugs', require('./routes/bug.routes'));
+app.use('/api/reports', require('./routes/report.routes'));
+app.use('/api/notifications', require('./routes/notifications.routes'));
+app.use('/api/users', require('./routes/user.routes'));
 
 // Debug middleware để log API calls
 app.use('/api/*', (req, res, next) => {
