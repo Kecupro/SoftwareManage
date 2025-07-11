@@ -23,15 +23,15 @@ export default function ProtectedRoute({ children, allowedRoles = null }) {
   //   return <Navigate to={loginPath} state={{ from: location }} replace />;
   // }
 
-  // // Nếu user là partner mà truy cập route nội bộ, redirect về /partner/portal
+  // Nếu là route /partner thì luôn cho phép truy cập (kể cả không đăng nhập)
+  if (location.pathname.startsWith('/partner')) {
+    return children;
+  }
+
+  // Nếu user là partner mà truy cập route nội bộ, redirect về /partner/portal
   if (user.role === 'partner' && !location.pathname.startsWith('/partner')) {
     return <Navigate to="/partner/portal" replace />;
   }
-
-  // Nếu user là nội bộ mà truy cập route /partner/..., redirect về /dashboard
-  // if (user.role !== 'partner' && location.pathname.startsWith('/partner')) {
-  //   return <Navigate to="/dashboard" replace />;
-  // }
 
   // Check if specific roles are required
   if (allowedRoles && !allowedRoles.includes(user.role)) {

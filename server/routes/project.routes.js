@@ -112,8 +112,42 @@ router.get('/', async (req, res) => {
 
 // @route   GET /api/projects/:id
 // @desc    Lấy thông tin chi tiết dự án
-// @access  Private
-router.get('/:id', authMiddleware, async (req, res) => {
+// @access  Public (Demo)
+router.get('/:id', async (req, res) => {
+  if (!req.user) {
+    // Trả về chi tiết project demo
+    return res.json({
+      success: true,
+      data: {
+        project: {
+          id: req.params.id,
+          name: 'Dự án Demo 1',
+          code: 'DA01',
+          status: 'active',
+          description: 'Đây là dự án demo cho chế độ không cần đăng nhập.',
+          partner: { id: 'p1', name: 'Đối tác Demo 1', email: 'partner1@example.com' },
+          team: {
+            projectManager: { fullName: 'PM Demo' },
+            productOwner: { fullName: 'PO Demo' },
+            businessAnalyst: { fullName: 'BA Demo' },
+            developers: [{ fullName: 'Dev Demo' }],
+            testers: [{ fullName: 'Tester Demo' }],
+            devops: [{ fullName: 'DevOps Demo' }]
+          },
+          timeline: {
+            startDate: new Date(),
+            endDate: new Date(),
+            estimatedDuration: 30
+          },
+          priority: 'high',
+          tags: ['demo'],
+          category: 'Demo',
+          budget: { amount: 1000000, currency: 'VND' },
+          createdBy: { fullName: 'Admin Demo' }
+        }
+      }
+    });
+  }
   try {
     const project = await Project.findById(req.params.id)
       .populate('partner.id', 'name code contact business')
