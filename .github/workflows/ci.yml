@@ -10,7 +10,7 @@ on:
 
 # Biến môi trường để dễ dàng tái sử dụng tên image
 env:
-  IMAGE_NAME: nkcdev318/my-project # THAY username của bạn vào đây
+  IMAGE_NAME: nkcdev318/software-manage # THAY username của bạn vào đây
 
 jobs:
   build-and-test:
@@ -80,13 +80,13 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             docker pull ${{ env.IMAGE_NAME }}:latest
-            docker stop my-project || true
-            docker rm my-project || true
+            docker stop software-manage || true
+            docker rm software-manage || true
             docker run -d \
-              --name my-project \
+              --name software-manage \
               --restart unless-stopped \
               -p 5000:5000 \
-              --env-file /path/to/your/.env \
-              -v /path/to/your/uploads:/app/uploads \
+              --env-file /home/ubuntu/.env \
+              -v /home/ubuntu/uploads:/app/uploads \
               ${{ env.IMAGE_NAME }}:latest
             docker image prune -f
