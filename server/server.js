@@ -20,7 +20,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://cdn.tailwindcss.com"],
+      connectSrc: ["'self'", "https://cdn.tailwindcss.com", "https://softwaremanage-production.up.railway.app"],
     },
   },
 }));
