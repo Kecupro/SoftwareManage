@@ -102,11 +102,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve React frontend static files
-app.use(express.static(path.join(__dirname, 'client/dist')));
+const staticPath = path.join(__dirname, 'client/dist');
+console.log('📁 Static files path:', staticPath);
+app.use(express.static(staticPath));
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+  const indexPath = path.join(__dirname, 'client/dist', 'index.html');
+  console.log('📄 Serving index.html from:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // Error handling middleware
