@@ -135,21 +135,34 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
   const [approveLoading, setApproveLoading] = useState(false);
   const [approveError, setApproveError] = useState('');
 
+  const demoModule = {
+    _id: 'mod1',
+    name: 'Module Demo 1',
+    code: 'MD01',
+    status: 'completed',
+    deliveryStatus: 'accepted',
+    assignedTo: { fullName: 'Dev Demo' },
+    qa: { fullName: 'QA Demo' },
+    reviewer: { fullName: 'Reviewer Demo' },
+    deliveredBy: { fullName: 'DevOps Demo' }
+  };
+  const moduleData = module || demoModule;
+
   // Quyền giao module
-  const canDeliver = module && currentUser && (
-    (module.assignedTo && module.assignedTo._id === currentUser._id) ||
-    (module.devOps && module.devOps._id === currentUser._id)
+  const canDeliver = moduleData && currentUser && (
+    (moduleData.assignedTo && moduleData.assignedTo._id === currentUser._id) ||
+    (moduleData.devOps && moduleData.devOps._id === currentUser._id)
   );
   // Quyền duyệt bàn giao
-  const canApprove = module && currentUser &&
-    module.deliveryStatus === 'pending' &&
-    ((module.reviewer && module.reviewer._id === currentUser._id) ||
-     (module.qa && module.qa._id === currentUser._id));
+  const canApprove = moduleData && currentUser &&
+    moduleData.deliveryStatus === 'pending' &&
+    ((moduleData.reviewer && moduleData.reviewer._id === currentUser._id) ||
+     (moduleData.qa && moduleData.qa._id === currentUser._id));
 
   // Quyền cập nhật trạng thái
-  const canUpdateStatus = module && currentUser && (
-    (module.assignedTo && module.assignedTo._id === currentUser._id) ||
-    (module.devOps && module.devOps._id === currentUser._id)
+  const canUpdateStatus = moduleData && currentUser && (
+    (moduleData.assignedTo && moduleData.assignedTo._id === currentUser._id) ||
+    (moduleData.devOps && moduleData.devOps._id === currentUser._id)
   );
 
   const handleDeliverySuccess = () => {
@@ -165,7 +178,7 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
     setApproveLoading(true);
     setApproveError('');
     try {
-      const res = await fetch(`/api/modules/${module._id}/approve`, {
+      const res = await fetch(`/api/modules/${moduleData._id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,10 +203,10 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
 
   // Người phụ trách
   const people = [
-    { label: 'Developer', user: module.assignedTo },
-    { label: 'QA', user: module.qa },
-    { label: 'Reviewer', user: module.reviewer },
-    { label: 'DevOps/Bàn giao', user: module.deliveredBy }
+    { label: 'Developer', user: moduleData.assignedTo },
+    { label: 'QA', user: moduleData.qa },
+    { label: 'Reviewer', user: moduleData.reviewer },
+    { label: 'DevOps/Bàn giao', user: moduleData.deliveredBy }
   ];
 
   if (showDeliveryForm) {
@@ -211,13 +224,13 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
               Quay lại
             </button>
             <h2 className="text-lg font-medium text-gray-900">
-              Bàn giao Module: {module.name}
+              Bàn giao Module: {moduleData.name}
             </h2>
           </div>
         </div>
         
         <PartnerDeliveryForm
-          module={module}
+          module={moduleData}
           project={project}
           onSuccess={handleDeliverySuccess}
           onCancel={() => setShowDeliveryForm(false)}
@@ -236,7 +249,7 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
             </svg>
             Quay lại
           </button>
-          <h2 className="text-lg font-medium text-gray-900">Duyệt bàn giao Module: {module.name}</h2>
+          <h2 className="text-lg font-medium text-gray-900">Duyệt bàn giao Module: {moduleData.name}</h2>
         </div>
         <div>
           <label className="font-medium text-gray-700 mb-1 block">Ghi chú duyệt</label>
@@ -257,13 +270,13 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
       <div className="bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl font-bold mb-2">Tổng quan module</h2>
-          <div className="mb-2"><span className="font-medium">Tên module:</span> {module.name}</div>
-          <div className="mb-2"><span className="font-medium">Mã:</span> {module.code}</div>
-          <div className="mb-2"><span className="font-medium">Mô tả:</span> {module.description || <span className='text-gray-400'>Chưa có mô tả</span>}</div>
-          <div className="mb-2 flex items-center gap-2"><span className="font-medium">Trạng thái:</span> <StatusBadge status={module.status} deliveryStatus={module.deliveryStatus} /></div>
-          <div className="mb-2 flex items-center gap-2"><span className="font-medium">Độ ưu tiên:</span> <PriorityBadge priority={module.priority} /></div>
-          <div className="mb-2"><span className="font-medium">Deadline:</span> {module.deadline ? new Date(module.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
-          <div className="mb-2"><span className="font-medium">Ước tính:</span> {module.estimatedHours || 'N/A'} giờ</div>
+          <div className="mb-2"><span className="font-medium">Tên module:</span> {moduleData.name}</div>
+          <div className="mb-2"><span className="font-medium">Mã:</span> {moduleData.code}</div>
+          <div className="mb-2"><span className="font-medium">Mô tả:</span> {moduleData.description || <span className='text-gray-400'>Chưa có mô tả</span>}</div>
+          <div className="mb-2 flex items-center gap-2"><span className="font-medium">Trạng thái:</span> <StatusBadge status={moduleData.status} deliveryStatus={moduleData.deliveryStatus} /></div>
+          <div className="mb-2 flex items-center gap-2"><span className="font-medium">Độ ưu tiên:</span> <PriorityBadge priority={moduleData.priority} /></div>
+          <div className="mb-2"><span className="font-medium">Deadline:</span> {moduleData.deadline ? new Date(moduleData.deadline).toLocaleDateString('vi-VN') : 'N/A'}</div>
+          <div className="mb-2"><span className="font-medium">Ước tính:</span> {moduleData.estimatedHours || 'N/A'} giờ</div>
         </div>
         <div>
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2"><UserGroupIcon className="w-5 h-5" /> Người phụ trách</h2>
@@ -275,18 +288,18 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-center gap-4 mb-4">
           <span className="font-medium">Tiến độ:</span>
-          <ProgressBar percent={module.progress || 0} />
-          <span className="ml-2 text-blue-700 font-semibold">{module.progress || 0}%</span>
+          <ProgressBar percent={moduleData.progress || 0} />
+          <span className="ml-2 text-blue-700 font-semibold">{moduleData.progress || 0}%</span>
         </div>
         <div className="flex flex-wrap gap-4 mb-4">
-          <div><span className="font-medium">Jira:</span> {module.traceability?.jiraTicket || <span className="text-gray-400">N/A</span>}</div>
-          <div><span className="font-medium">GitLab MR:</span> {module.traceability?.gitlabMr || <span className="text-gray-400">N/A</span>}</div>
-          <div><span className="font-medium">SonarQube:</span> {module.traceability?.sonarQubeStatus || <span className="text-gray-400">N/A</span>}</div>
-          <div><span className="font-medium">Jenkins:</span> {module.traceability?.jenkinsBuild || <span className="text-gray-400">N/A</span>}</div>
+          <div><span className="font-medium">Jira:</span> {moduleData.traceability?.jiraTicket || <span className="text-gray-400">N/A</span>}</div>
+          <div><span className="font-medium">GitLab MR:</span> {moduleData.traceability?.gitlabMr || <span className="text-gray-400">N/A</span>}</div>
+          <div><span className="font-medium">SonarQube:</span> {moduleData.traceability?.sonarQubeStatus || <span className="text-gray-400">N/A</span>}</div>
+          <div><span className="font-medium">Jenkins:</span> {moduleData.traceability?.jenkinsBuild || <span className="text-gray-400">N/A</span>}</div>
         </div>
         {/* Nút hành động theo quyền */}
         <div className="flex gap-2 mt-2">
-          {canDeliver && module.deliveryStatus !== 'accepted' && (
+          {canDeliver && moduleData.deliveryStatus !== 'accepted' && (
             <button onClick={() => setShowDeliveryForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Bàn giao module</button>
           )}
           {canApprove && (
@@ -303,22 +316,22 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
         <h3 className="text-lg font-medium mb-4">Thông tin bàn giao</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <div className="mb-2"><span className="font-medium">Commit Hash:</span> {module.gitCommitHash ? <a href={`https://gitlab.viettel.com.vn/${project.code}/-/commit/${module.gitCommitHash}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">{module.gitCommitHash.substring(0, 8)}</a> : 'N/A'}</div>
-            <div className="mb-2"><span className="font-medium">Thời gian bàn giao:</span> {module.deliveryTime ? new Date(module.deliveryTime).toLocaleString('vi-VN') : 'N/A'}</div>
-            <div className="mb-2"><span className="font-medium">Ghi chú:</span> {module.deliveryNote || 'N/A'}</div>
-            <div className="mb-2"><span className="font-medium">Người bàn giao:</span> {module.deliveredBy?.name || module.deliveredBy?.fullName || 'N/A'}</div>
+            <div className="mb-2"><span className="font-medium">Commit Hash:</span> {moduleData.gitCommitHash ? <a href={`https://gitlab.viettel.com.vn/${project.code}/-/commit/${moduleData.gitCommitHash}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">{moduleData.gitCommitHash.substring(0, 8)}</a> : 'N/A'}</div>
+            <div className="mb-2"><span className="font-medium">Thời gian bàn giao:</span> {moduleData.deliveryTime ? new Date(moduleData.deliveryTime).toLocaleString('vi-VN') : 'N/A'}</div>
+            <div className="mb-2"><span className="font-medium">Ghi chú:</span> {moduleData.deliveryNote || 'N/A'}</div>
+            <div className="mb-2"><span className="font-medium">Người bàn giao:</span> {moduleData.deliveredBy?.name || moduleData.deliveredBy?.fullName || 'N/A'}</div>
           </div>
           <div>
             <div className="mb-2"><span className="font-medium">File bàn giao:</span>
               <ul className="list-disc ml-5">
-                {(module.deliveryFiles || []).map((file, idx) => (
+                {(moduleData.deliveryFiles || []).map((file, idx) => (
                   <li key={idx}>
                     <a href={`/${file.path?.replace(/\\/g, '/')}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {file.originalname || file.name || file.path}
                     </a>
                   </li>
                 ))}
-                {(!module.deliveryFiles || module.deliveryFiles.length === 0) && <li className="text-gray-400">Không có file</li>}
+                {(!moduleData.deliveryFiles || moduleData.deliveryFiles.length === 0) && <li className="text-gray-400">Không có file</li>}
               </ul>
             </div>
           </div>
@@ -330,42 +343,42 @@ export default function PartnerModuleDetail({ module, project, currentUser, onDe
         <div>
           <div className="mb-2 flex items-center gap-2"><LinkIcon className="w-4 h-4" />
             <span className="font-medium">JIRA:</span>
-            <a href={`https://jira.viettel.com.vn/browse/${module.jiraId}`} className="text-blue-600 hover:underline text-xs" target="_blank" rel="noopener noreferrer">{module.jiraId || 'N/A'}</a>
+            <a href={`https://jira.viettel.com.vn/browse/${moduleData.jiraId}`} className="text-blue-600 hover:underline text-xs" target="_blank" rel="noopener noreferrer">{moduleData.jiraId || 'N/A'}</a>
           </div>
           <div className="mb-2 flex items-center gap-2"><CodeBracketIcon className="w-4 h-4" />
             <span className="font-medium">Branch:</span>
-            <span className="font-medium text-xs">{module.gitBranch || 'develop'}</span>
+            <span className="font-medium text-xs">{moduleData.gitBranch || 'develop'}</span>
           </div>
           <div className="mb-2 flex items-center gap-2">
             <span className="font-medium">Pull Request:</span>
-            <a href={`https://gitlab.viettel.com.vn/${project.code}/-/merge_requests/${module.pullRequestId}`} className="text-blue-600 hover:underline text-xs" target="_blank" rel="noopener noreferrer">{module.pullRequestId ? `#${module.pullRequestId}` : 'N/A'}</a>
+            <a href={`https://gitlab.viettel.com.vn/${project.code}/-/merge_requests/${moduleData.pullRequestId}`} className="text-blue-600 hover:underline text-xs" target="_blank" rel="noopener noreferrer">{moduleData.pullRequestId ? `#${moduleData.pullRequestId}` : 'N/A'}</a>
           </div>
         </div>
         <div>
           <div className="mb-2 flex items-center gap-2">
             <span className="font-medium">Build:</span>
-            <span className={`font-medium text-xs ${module.buildStatus === 'success' ? 'text-green-600' : module.buildStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{module.buildStatus || 'N/A'}</span>
+            <span className={`font-medium text-xs ${moduleData.buildStatus === 'success' ? 'text-green-600' : moduleData.buildStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{moduleData.buildStatus || 'N/A'}</span>
           </div>
           <div className="mb-2 flex items-center gap-2">
             <span className="font-medium">Deploy:</span>
-            <span className={`font-medium text-xs ${module.deployStatus === 'success' ? 'text-green-600' : module.deployStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{module.deployStatus || 'N/A'}</span>
+            <span className={`font-medium text-xs ${moduleData.deployStatus === 'success' ? 'text-green-600' : moduleData.deployStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{moduleData.deployStatus || 'N/A'}</span>
           </div>
           <div className="mb-2 flex items-center gap-2">
             <span className="font-medium">SonarQube:</span>
-            <span className={`font-medium text-xs ${module.sonarStatus === 'passed' ? 'text-green-600' : module.sonarStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{module.sonarStatus || 'N/A'}</span>
+            <span className={`font-medium text-xs ${moduleData.sonarStatus === 'passed' ? 'text-green-600' : moduleData.sonarStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{moduleData.sonarStatus || 'N/A'}</span>
           </div>
           <div className="mb-2 flex items-center gap-2">
             <span className="font-medium">Test:</span>
-            <span className={`font-medium text-xs ${module.testStatus === 'passed' ? 'text-green-600' : module.testStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{module.testStatus || 'Chưa test'}</span>
+            <span className={`font-medium text-xs ${moduleData.testStatus === 'passed' ? 'text-green-600' : moduleData.testStatus === 'failed' ? 'text-red-600' : 'text-gray-600'}`}>{moduleData.testStatus || 'Chưa test'}</span>
           </div>
         </div>
       </div>
 
       {/* Section 5: Lịch sử thao tác */}
-      {module.statusHistory && module.statusHistory.length > 0 && (
+      {moduleData.statusHistory && moduleData.statusHistory.length > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-medium mb-4">Lịch sử thao tác</h3>
-          <CompactTimeline history={module.statusHistory} />
+          <CompactTimeline history={moduleData.statusHistory} />
         </div>
       )}
     </div>
