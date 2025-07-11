@@ -27,6 +27,7 @@ import PartnerPortalPage from './pages/PartnerPortalPage';
 import PartnersPage from './pages/PartnersPage';
 import Layout from './components/Layout';
 import ModuleRequestsPage from './pages/ModuleRequestsPage';
+import PartnerProjectDetail from './components/PartnerProjectDetail';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -76,10 +77,20 @@ function AppContent() {
 
         {/* Partner Portal - Protected route */}
         <Route path="/partner/portal" element={
-          <ProtectedRoute allowedRoles={['partner']}>
+          <ProtectedRoute>
             <PartnerPortalPage />
           </ProtectedRoute>
         } />
+
+        {/* Partner Portal - Nested routes */}
+        <Route path="/partner/portal" element={
+          <ProtectedRoute>
+            <PartnerPortalPage />
+          </ProtectedRoute>
+        }>
+          <Route path="projects/:projectId" element={<PartnerProjectDetail />} />
+          {/* Có thể thêm route module chi tiết ở đây nếu muốn */}
+        </Route>
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
