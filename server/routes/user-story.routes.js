@@ -1,14 +1,14 @@
 const express = require('express');
 const UserStory = require('../models/user-story.model');
 const User = require('../models/user.model');
-const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware } = require('../middleware/auth.middleware');
 const mongoose = require('mongoose');
 const { checkRole } = require('../middleware/role.middleware');
 
 const router = express.Router();
 
 // GET /api/user-stories/:id - Lấy chi tiết user story
-router.get('/:id', fakeAuthMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id)
       .populate('project', 'name code')
@@ -57,7 +57,7 @@ router.get('/:id', fakeAuthMiddleware, async (req, res) => {
 });
 
 // GET /api/user-stories - Lấy danh sách user stories
-router.get('/', fakeAuthMiddleware, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const query = {};
     if (req.query.project) {
@@ -99,7 +99,7 @@ router.get('/', fakeAuthMiddleware, async (req, res) => {
 });
 
 // POST /api/user-stories - Tạo user story mới
-router.post('/', fakeAuthMiddleware, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     // Tạo code tự động nếu không có
     const code = req.body.code || `US-${Date.now()}`;
@@ -176,7 +176,7 @@ router.post('/', fakeAuthMiddleware, async (req, res) => {
 });
 
 // PUT /api/user-stories/:id - Cập nhật user story
-router.put('/:id', fakeAuthMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id);
 
@@ -214,7 +214,7 @@ router.put('/:id', fakeAuthMiddleware, async (req, res) => {
 });
 
 // Cập nhật trạng thái user story: chỉ assignedTo mới được cập nhật
-router.put('/:id/status', fakeAuthMiddleware, async (req, res) => {
+router.put('/:id/status', authMiddleware, async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id);
     if (!userStory) return res.status(404).json({ success: false, message: 'Không tìm thấy user story' });
@@ -236,7 +236,7 @@ router.put('/:id/status', fakeAuthMiddleware, async (req, res) => {
 });
 
 // Duyệt user story: chỉ QA/Reviewer mới được duyệt
-router.post('/:id/approve', fakeAuthMiddleware, checkRole(['qa', 'reviewer']), async (req, res) => {
+router.post('/:id/approve', authMiddleware, checkRole(['qa', 'reviewer']), async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id);
     if (!userStory) return res.status(404).json({ success: false, message: 'Không tìm thấy user story' });
@@ -258,7 +258,7 @@ router.post('/:id/approve', fakeAuthMiddleware, checkRole(['qa', 'reviewer']), a
 });
 
 // POST /api/user-stories/:id/deliver - Đánh dấu bàn giao user story
-router.post('/:id/deliver', fakeAuthMiddleware, async (req, res) => {
+router.post('/:id/deliver', authMiddleware, async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id);
     if (!userStory) {
@@ -282,7 +282,7 @@ router.post('/:id/deliver', fakeAuthMiddleware, async (req, res) => {
 });
 
 // POST /api/user-stories/:id/reject - Từ chối user story
-router.post('/:id/reject', fakeAuthMiddleware, async (req, res) => {
+router.post('/:id/reject', authMiddleware, async (req, res) => {
   try {
     const userStory = await UserStory.findById(req.params.id);
     if (!userStory) {

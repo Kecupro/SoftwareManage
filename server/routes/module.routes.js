@@ -1,7 +1,7 @@
 const express = require('express');
 const Module = require('../models/module.model');
 const Task = require('../models/task.model');
-const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware } = require('../middleware/auth.middleware');
 const { checkRole } = require('../middleware/role.middleware');
 const multer = require('multer');
 const path = require('path');
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // GET /api/modules - Lấy danh sách module
-router.get('/', fakeAuthMiddleware, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.query;
     const query = {};
@@ -46,7 +46,7 @@ router.get('/', fakeAuthMiddleware, async (req, res) => {
 });
 
 // GET /api/modules/:id - Lấy chi tiết module
-router.get('/:id', fakeAuthMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const modulePromise = Module.findById(req.params.id)
       .populate('project', 'name code')
@@ -88,7 +88,7 @@ router.get('/:id', fakeAuthMiddleware, async (req, res) => {
 });
 
 // POST /api/modules - Tạo module mới
-router.post('/', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.post('/', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const module = new Module({
       ...req.body,
@@ -108,7 +108,7 @@ router.post('/', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res
 });
 
 // PUT /api/modules/:id - Cập nhật module
-router.put('/:id', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.put('/:id', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const module = await Module.findById(req.params.id);
     if (!module) return res.status(404).json({ success: false, message: 'Không tìm thấy module' });
@@ -128,7 +128,7 @@ router.put('/:id', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, r
 });
 
 // DELETE /api/modules/:id - Xóa module
-router.delete('/:id', fakeAuthMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const module = await Module.findByIdAndDelete(req.params.id);
 
@@ -154,7 +154,7 @@ router.delete('/:id', fakeAuthMiddleware, async (req, res) => {
 // POST /api/modules/:id/deliver
 // @desc    Bàn giao module cho đối tác (Admin/PM/Dev)
 // @access  Private (Admin, PM, Dev)
-router.post('/:id/deliver', fakeAuthMiddleware, checkRole(['dev', 'devOps']), upload.array('deliveryFiles', 10), async (req, res) => {
+router.post('/:id/deliver', authMiddleware, checkRole(['dev', 'devOps']), upload.array('deliveryFiles', 10), async (req, res) => {
   try {
     const module = await Module.findById(req.params.id);
     if (!module) return res.status(404).json({ success: false, message: 'Không tìm thấy module' });
@@ -186,7 +186,7 @@ router.post('/:id/deliver', fakeAuthMiddleware, checkRole(['dev', 'devOps']), up
 });
 
 // POST /api/modules/:id/approve - Phê duyệt bàn giao module
-router.post('/:id/approve', fakeAuthMiddleware, checkRole(['reviewer', 'qa']), async (req, res) => {
+router.post('/:id/approve', authMiddleware, checkRole(['reviewer', 'qa']), async (req, res) => {
   try {
     const module = await Module.findById(req.params.id);
     if (!module) return res.status(404).json({ success: false, message: 'Không tìm thấy module' });
@@ -212,7 +212,7 @@ router.post('/:id/approve', fakeAuthMiddleware, checkRole(['reviewer', 'qa']), a
 });
 
 // POST /api/modules/:id/reject - Từ chối bàn giao module
-router.post('/:id/reject', fakeAuthMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
+router.post('/:id/reject', authMiddleware, checkRole(['admin', 'pm']), async (req, res) => {
   try {
     const module = await Module.findById(req.params.id)
       .populate('project', 'name code')
@@ -317,7 +317,7 @@ router.post('/:id/reject', fakeAuthMiddleware, checkRole(['admin', 'pm']), async
 });
 
 // Cập nhật trạng thái module: chỉ assignedTo/devOps mới được cập nhật
-router.put('/:id/status', fakeAuthMiddleware, async (req, res) => {
+router.put('/:id/status', authMiddleware, async (req, res) => {
   try {
     const module = await Module.findById(req.params.id);
     if (!module) return res.status(404).json({ success: false, message: 'Không tìm thấy module' });

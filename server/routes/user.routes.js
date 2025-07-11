@@ -1,12 +1,12 @@
 const express = require('express');
 const User = require('../models/user.model');
-const { fakeAuthMiddleware, checkRole } = require('../middleware/auth.middleware');
+const { authMiddleware, checkRole } = require('../middleware/auth.middleware');
 const crypto = require('crypto');
 
 const router = express.Router();
 
 // GET /api/users - Lấy danh sách users (đầy đủ trường)
-router.get('/', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.get('/', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const { page = 1, limit = 10, search, role, status } = req.query;
     const query = {};
@@ -46,7 +46,7 @@ router.get('/', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
 // @route   GET /api/users
 // @desc    Lấy danh sách user (filter, search, phân trang)
 // @access  Private (Admin)
-router.get('/', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.get('/', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const { page = 1, limit = 10, search, role, status } = req.query;
     const query = {};
@@ -85,7 +85,7 @@ router.get('/', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
 // @route   POST /api/users/invite
 // @desc    Mời user mới qua email (chưa gửi mail, chỉ trả về link invite)
 // @access  Private (Admin)
-router.post('/invite', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.post('/invite', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const { email, fullName, role } = req.body;
     if (!email || !fullName || !role) {
@@ -144,7 +144,7 @@ router.post('/accept-invite', async (req, res) => {
 // @route   GET /api/users/:id
 // @desc    Lấy chi tiết user
 // @access  Private (Admin)
-router.get('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.get('/:id', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
@@ -157,7 +157,7 @@ router.get('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res) =>
 // @route   PUT /api/users/:id
 // @desc    Sửa thông tin user
 // @access  Private (Admin)
-router.put('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.put('/:id', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const { fullName, email, role, status } = req.body;
     const user = await User.findById(req.params.id);
@@ -180,7 +180,7 @@ router.put('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res) =>
 // @route   DELETE /api/users/:id
 // @desc    Xóa user
 // @access  Private (Admin)
-router.delete('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.delete('/:id', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
@@ -193,7 +193,7 @@ router.delete('/:id', fakeAuthMiddleware, checkRole(['admin']), async (req, res)
 // @route   PATCH /api/users/:id/role
 // @desc    Đổi vai trò user
 // @access  Private (Admin)
-router.patch('/:id/role', fakeAuthMiddleware, checkRole(['admin']), async (req, res) => {
+router.patch('/:id/role', authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
     const { role } = req.body;
     if (!role) return res.status(400).json({ success: false, message: 'Thiếu role' });

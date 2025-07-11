@@ -1,12 +1,12 @@
 const express = require('express');
 const Project = require('../models/project.model');
 const Module = require('../models/module.model');
-const { fakeAuthMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
 // GET /api/reports/project/:id - Báo cáo dự án
-router.get('/project/:id', fakeAuthMiddleware, async (req, res) => {
+router.get('/project/:id', authMiddleware, async (req, res) => {
   try {
     const projectId = req.params.id;
     
