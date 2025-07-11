@@ -16,7 +16,7 @@ COPY server/ .
 COPY --from=build-frontend /app/client/dist ./client/dist
 
 # Expose port
-EXPOSE 5000
+EXPOSE 8080
 
 # Start server
 CMD ["node", "server.js"]

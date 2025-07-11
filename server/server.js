@@ -40,9 +40,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Kết nối đến MongoDB
-mongoose.connect(process.env.MONGO_URI )
-    .then(() => console.log('✅ Kết nối MongoDB thành công!'))
-    .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
+.then(() => console.log('✅ Kết nối MongoDB thành công!'))
+.catch(err => {
+  console.error('❌ Lỗi kết nối MongoDB:', err);
+  console.error('❌ MONGO_URI:', process.env.MONGO_URI ? 'Đã set' : 'CHƯA SET');
+  process.exit(1);
+});
 
 // Import các models
 require('./models/user.model');
@@ -78,12 +87,18 @@ app.use('/api/users', authMiddleware, require('./routes/user.routes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({
+  const health = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+    environment: process.env.NODE_ENV || 'development',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    port: process.env.PORT || 5000,
+    cors_origins: process.env.CORS_ORIGINS ? 'set' : 'not set'
+  };
+  
+  const statusCode = health.mongodb === 'connected' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // Serve React frontend static files
@@ -134,12 +149,16 @@ app.use('*', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server đang chạy tại http://0.0.0.0:${PORT}`);
+  console.log(`📊 Health check: http://0.0.0.0:${PORT}/api/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 MONGO_URI: ${process.env.MONGO_URI ? 'Đã set' : 'CHƯA SET'}`);
+}).on('error', (err) => {
+  console.error('❌ Lỗi khởi động server:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown
