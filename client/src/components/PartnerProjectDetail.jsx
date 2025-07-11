@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import PartnerDeliveryForm from './PartnerDeliveryForm';
 import PartnerModuleDetail from './PartnerModuleDetail';
+import { useParams } from 'react-router-dom';
 
-export default function PartnerProjectDetail({ project, onBack }) {
+export default function PartnerProjectDetail({ onBack }) {
+  const { projectId } = useParams();
   const { showSuccess } = useNotifications();
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,18 +15,31 @@ export default function PartnerProjectDetail({ project, onBack }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Lấy project demo theo id (hoặc fetch nếu cần)
+  const project = {
+    id: projectId,
+    name: 'Dự án Đối tác Demo 1',
+    code: 'DA01',
+    status: 'active',
+    description: 'Dự án mẫu cho đối tác',
+    timeline: { startDate: '2023-01-01', endDate: '2023-12-31' },
+    team: { developers: [{ fullName: 'Dev Demo' }] },
+    modules: [{ name: 'Module Demo', status: 'completed' }],
+    progress: 80
+  };
+
   useEffect(() => {
-    if (project) {
+    if (projectId) {
       fetchModules();
     }
-  }, [project]);
+  }, [projectId]);
 
   const fetchModules = async () => {
-    if (!project) return;
+    if (!projectId) return;
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/partners/me/projects/${project.id}/modules`, {
+      const response = await fetch(`/api/partners/me/projects/${projectId}/modules`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

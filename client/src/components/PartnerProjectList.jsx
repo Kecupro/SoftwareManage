@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function PartnerProjectList({ onProjectSelect, selectedProject, onViewDetail }) {
   const { showSuccess } = useNotifications();
@@ -7,6 +8,7 @@ export default function PartnerProjectList({ onProjectSelect, selectedProject, o
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
@@ -61,8 +63,9 @@ export default function PartnerProjectList({ onProjectSelect, selectedProject, o
   };
 
   const handleProjectSelect = (project) => {
-    onProjectSelect(project);
+    if (onProjectSelect) onProjectSelect(project);
     showSuccess(`Đã chọn dự án: ${project.name}`);
+    navigate(`/partner/portal/projects/${project._id}`);
   };
 
   const filteredProjects = projects.filter(project => {
