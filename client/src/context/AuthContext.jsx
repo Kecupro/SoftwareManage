@@ -66,6 +66,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (userData) => {
+    try {
+      const response = await axios.post('/api/auth/register', userData);
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Đăng ký thất bại'
+      };
+    }
+  };
+
+  const registerPartner = async (partnerData) => {
+    try {
+      const response = await axios.post('/api/auth/register-partner', partnerData);
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Đăng ký đối tác thất bại'
+      };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -108,6 +132,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    register,
+    registerPartner,
     updateProfile,
     changePassword,
     isAuthenticated: !!user,

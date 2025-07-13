@@ -7,7 +7,9 @@ import { FileUploadProvider } from './context/FileUploadContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './components/ToastContainer';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import PartnerLoginPage from './pages/PartnerLoginPage';
+import PartnerRegisterPage from './pages/PartnerRegisterPage';
 import PartnerLandingPage from './pages/PartnerLandingPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -44,8 +46,10 @@ function AppContent() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/partner" element={<PartnerLandingPage />} />
         <Route path="/partner/login" element={<PartnerLoginPage />} />
+        <Route path="/partner/register" element={<PartnerRegisterPage />} />
         
         {/* Protected routes */}
         <Route path="/" element={

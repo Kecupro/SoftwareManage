@@ -31,6 +31,56 @@ const registerValidation = [
     .withMessage('Vai trò không hợp lệ')
 ];
 
+const publicRegisterValidation = [
+  body('fullName')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Họ tên phải có từ 2-100 ký tự'),
+  body('email')
+    .isEmail()
+    .withMessage('Email không hợp lệ')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
+  body('phone')
+    .notEmpty()
+    .withMessage('Số điện thoại không được để trống'),
+  body('department')
+    .notEmpty()
+    .withMessage('Phòng ban không được để trống'),
+  body('role')
+    .isIn(['dev', 'qa', 'ba', 'po', 'pm', 'devops'])
+    .withMessage('Vai trò không hợp lệ')
+];
+
+const partnerRegisterValidation = [
+  body('companyName')
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Tên công ty phải có từ 2-200 ký tự'),
+  body('contactPerson')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Người đại diện phải có từ 2-100 ký tự'),
+  body('email')
+    .isEmail()
+    .withMessage('Email không hợp lệ')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
+  body('phone')
+    .notEmpty()
+    .withMessage('Số điện thoại không được để trống'),
+  body('address')
+    .notEmpty()
+    .withMessage('Địa chỉ không được để trống'),
+  body('taxCode')
+    .notEmpty()
+    .withMessage('Mã số thuế không được để trống'),
+  body('businessType')
+    .notEmpty()
+    .withMessage('Loại hình kinh doanh không được để trống')
+];
+
 const loginValidation = [
   body('email')
     .isEmail()
@@ -460,6 +510,140 @@ router.put('/users/:id/status', authMiddleware, checkRole('admin'), async (req, 
     });
   } catch (error) {
     console.error('Update user status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server'
+    });
+  }
+});
+
+// @route   POST /api/auth/register
+// @desc    Đăng ký tài khoản công khai (cho nhân viên)
+// @access  Public
+router.post('/register', publicRegisterValidation, async (req, res) => {
+  try {
+    // Kiểm tra validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu không hợp lệ',
+        errors: errors.array()
+      });
+    }
+
+    const { fullName, email, password, phone, department, role } = req.body;
+
+    // Kiểm tra email đã tồn tại
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email đã tồn tại'
+      });
+    }
+
+    // Tạo username từ email
+    const username = email.split('@')[0];
+
+    // Tạo user mới với role được chọn
+    const user = new User({
+      username,
+      email,
+      password,
+      fullName,
+      role,
+      profile: {
+        phone,
+        department
+      },
+      isActive: false, // Cần admin kích hoạt
+      status: 'pending'
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Đăng ký thành công! Tài khoản sẽ được kích hoạt sau khi admin xác nhận.'
+    });
+  } catch (error) {
+    console.error('Public register error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi server'
+    });
+  }
+});
+
+// @route   POST /api/auth/register-partner
+// @desc    Đăng ký tài khoản đối tác
+// @access  Public
+router.post('/register-partner', partnerRegisterValidation, async (req, res) => {
+  try {
+    // Kiểm tra validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu không hợp lệ',
+        errors: errors.array()
+      });
+    }
+
+    const { 
+      companyName, 
+      contactPerson, 
+      email, 
+      password, 
+      phone, 
+      address, 
+      taxCode, 
+      website, 
+      businessType, 
+      description 
+    } = req.body;
+
+    // Kiểm tra email đã tồn tại
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email đã tồn tại'
+      });
+    }
+
+    // Tạo username từ email
+    const username = email.split('@')[0];
+
+    // Tạo user mới với role 'partner'
+    const user = new User({
+      username,
+      email,
+      password,
+      fullName: contactPerson,
+      role: 'partner',
+      profile: {
+        companyName,
+        phone,
+        address,
+        taxCode,
+        website,
+        businessType,
+        description
+      },
+      isActive: false, // Cần admin kích hoạt
+      status: 'pending'
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Đăng ký đối tác thành công! Tài khoản sẽ được kích hoạt sau khi admin xác nhận.'
+    });
+  } catch (error) {
+    console.error('Partner register error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi server'

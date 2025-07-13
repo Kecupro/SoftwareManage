@@ -9,10 +9,10 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
   },
-  define: {
-    'import.meta.env.DEV': JSON.stringify(process.env.NODE_ENV !== 'production'),
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-  },
+  // define: {
+  //   'import.meta.env.DEV': JSON.stringify(process.env.NODE_ENV !== 'production'),
+  //   'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+  // },
   server: {
     proxy: {
       '/api': {
