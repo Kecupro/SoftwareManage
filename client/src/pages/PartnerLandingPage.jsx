@@ -189,7 +189,7 @@ export default function PartnerLandingPage() {
           </p>
           <Link
             to="/partner/login"
-            className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-lg text-lg font-medium transition-colors"
+            className="bg-white/80 backdrop-blur-sm text-blue-600 hover:bg-gray-100/80 px-8 py-3 rounded-lg text-lg font-medium transition-colors"
           >
             Đăng Nhập Ngay
           </Link>

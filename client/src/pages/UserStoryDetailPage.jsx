@@ -278,7 +278,7 @@ export default function UserStoryDetailPage() {
       </div>
 
       {/* Quy trình bàn giao & phê duyệt */}
-      <div className="bg-white rounded-lg shadow p-4 mb-4">
+                  <div className="bg-white rounded-xl shadow-lg border border-white/50 p-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <div>
             <span className="font-semibold">Trạng thái bàn giao:&nbsp;</span>
@@ -354,7 +354,7 @@ export default function UserStoryDetailPage() {
 
       {/* User Story Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/50">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

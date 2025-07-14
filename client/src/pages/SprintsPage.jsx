@@ -167,7 +167,7 @@ export default function SprintsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
+                  <div className="bg-white p-4 rounded-xl shadow-lg border border-white/50">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -232,7 +232,7 @@ export default function SprintsPage() {
       {/* Sprints Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredSprints.map((sprint) => (
-          <div key={sprint._id || sprint.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                      <div key={sprint._id || sprint.id} className="bg-white rounded-xl shadow-lg border border-white/50 hover:shadow-xl transition-all duration-200">
             <div className="p-6">
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
@@ -333,7 +333,7 @@ export default function SprintsPage() {
       {/* Create Sprint Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white/90 backdrop-blur-sm border-white/50">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Tạo sprint mới</h3>
               <form onSubmit={handleCreateSprint} className="space-y-4">

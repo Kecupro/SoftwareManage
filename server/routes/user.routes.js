@@ -2,6 +2,21 @@ const express = require('express');
 const User = require('../models/user.model');
 const { authMiddleware, checkRole } = require('../middleware/auth.middleware');
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
+
+// Cấu hình lưu file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads'));
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const filename = `avatar_${req.user._id}_${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -136,6 +151,25 @@ router.post('/accept-invite', async (req, res) => {
     user.inviteToken = undefined;
     await user.save();
     res.json({ success: true, message: 'Kích hoạt tài khoản thành công! Bạn có thể đăng nhập.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+});
+
+// @route   POST /api/users/upload-avatar
+// @desc    Upload avatar cho user hiện tại
+// @access  Private (user đã đăng nhập)
+router.post('/upload-avatar', authMiddleware, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Không có file upload' });
+    }
+    // Cập nhật avatar cho user hiện tại
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
+    user.avatar = `/uploads/${req.file.filename}`;
+    await user.save();
+    res.json({ success: true, message: 'Upload avatar thành công', avatar: user.avatar });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }

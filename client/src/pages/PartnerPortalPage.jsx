@@ -43,7 +43,7 @@ export default function PartnerPortalPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+                  <div className="bg-white shadow-sm border-b border-white/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -63,7 +63,7 @@ export default function PartnerPortalPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b">
+                  <div className="bg-white shadow-sm border-b border-white/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
             {tabs.map((tab) => (
@@ -118,7 +118,7 @@ export default function PartnerPortalPage() {
 
         {activeTab === 'documents' && (
           <div className="space-y-6">
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-white shadow-lg rounded-xl border border-white/50 p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">
                 Quản lý tài liệu
               </h2>

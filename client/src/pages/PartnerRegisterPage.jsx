@@ -112,7 +112,7 @@ export default function PartnerRegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-white">
+        <div className="min-h-screen flex flex-col md:flex-row">
             {/* Left: Logo, hotline, illustration, background image */}
             <div className="md:w-1/2 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200" style={{backgroundImage: 'url(/breadcrum-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
                 {/* Overlay for readability */}
@@ -129,7 +129,7 @@ export default function PartnerRegisterPage() {
             </div>
             
             {/* Right: Register Form */}
-            <div className="md:w-1/2 flex flex-col justify-center items-center p-8 bg-white">
+            <div className="md:w-1/2 flex flex-col justify-center items-center p-8 bg-white backdrop-blur-sm">
                 <div className="w-full max-w-md">
                     <h2 className="text-2xl font-bold text-indigo-700 text-center mb-2 uppercase">Đăng ký tài khoản đối tác</h2>
                     <div className="text-center text-gray-700 mb-6 text-base font-semibold">

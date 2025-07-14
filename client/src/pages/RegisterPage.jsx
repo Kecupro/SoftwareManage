@@ -58,6 +58,8 @@ export default function RegisterPage() {
             newErrors.password = 'Mật khẩu là bắt buộc';
         } else if (formData.password.length < 6) {
             newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+            newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số';
         }
         
         if (formData.password !== formData.confirmPassword) {
@@ -123,7 +125,19 @@ export default function RegisterPage() {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-white overflow-hidden">
+        <div className="min-h-screen flex flex-col md:flex-row overflow-hidden relative">
+            {/* Background Image for entire page */}
+            <div 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{
+                    backgroundImage: 'url(/banner.svg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            >
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-white/90 to-white/95"></div>
+            </div>
             {/* Left: Logo, hotline, illustration, background image */}
             <div 
                 className={`md:w-1/2 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200 transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}`}
@@ -152,7 +166,7 @@ export default function RegisterPage() {
             
             {/* Right: Register Form */}
             <div 
-                className={`md:w-1/2 flex flex-col justify-center items-center p-8 bg-white transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
+                className={`md:w-1/2 flex flex-col justify-center items-center p-8 bg-white/80 backdrop-blur-sm transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
             >
                 <div className="w-full max-w-md animate-fade-in-up">
                     <h2 className="text-2xl font-bold text-[#d80027] text-center mb-2 uppercase animate-slide-in-down">Đăng ký tài khoản</h2>

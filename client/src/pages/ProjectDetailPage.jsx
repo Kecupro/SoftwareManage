@@ -57,6 +57,16 @@ function calcSprintProgress(sprint, tasks, userStories) {
 // Thêm hàm kiểm tra hoàn thành
 const isCompleted = status => ['completed', 'done', 'complete'].includes(status);
 
+// Helper to get full avatar URL for local and production
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return '';
+  if (avatar.startsWith('/uploads/')) {
+    return backendUrl + avatar;
+  }
+  return avatar;
+};
+
 export default function ProjectDetailPage() {
     const { id } = useParams();
     const { user: currentUser } = useAuth(); // Lấy user hiện tại
@@ -378,7 +388,7 @@ export default function ProjectDetailPage() {
 
             {/* Project Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-lg shadow">
+                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/50">
                     <div className="flex items-center">
                         <div className="p-2 bg-blue-100 rounded-lg">
                             <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,7 +405,7 @@ export default function ProjectDetailPage() {
                     </div>
                 </div>
                 
-                <div className="bg-white p-4 rounded-lg shadow">
+                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/50">
                     <div className="flex items-center">
                         <div className="p-2 bg-green-100 rounded-lg">
                             <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -611,10 +621,18 @@ export default function ProjectDetailPage() {
                                     return memberList.map((member) => (
                                         <div key={member._id || member.id} className="bg-gray-50 p-4 rounded-lg">
                                         <div className="flex items-center">
-                                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                                                {member.profile?.avatar || member.avatar ? (
+                                                    <img
+                                                        src={getAvatarUrl(member.profile?.avatar || member.avatar)}
+                                                        alt={member.fullName || member.username}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                ) : (
                                                     <span className="text-sm font-medium text-gray-700">
                                                         {member.fullName ? member.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'NA'}
                                                     </span>
+                                                )}
                                             </div>
                                             <div className="ml-3">
                                                     <p className="text-sm font-medium text-gray-900">{member.fullName || member.username}</p>

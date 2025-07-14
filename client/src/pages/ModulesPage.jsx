@@ -166,7 +166,7 @@ export default function ModulesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
+                  <div className="bg-white p-4 rounded-xl shadow-lg border border-white/50">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -230,7 +230,7 @@ export default function ModulesPage() {
       </div>
 
       {/* Modules Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+                  <div className="bg-white shadow-lg rounded-xl border border-white/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -252,7 +252,7 @@ export default function ModulesPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white/50 divide-y divide-gray-200/50">
               {filteredModules.map((module) => (
                 <tr key={module._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -299,7 +299,7 @@ export default function ModulesPage() {
       {/* Create Module Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white/90 backdrop-blur-sm border-white/50">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Thêm module mới</h3>
               <form onSubmit={handleCreateModule} className="space-y-4">

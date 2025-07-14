@@ -131,7 +131,7 @@ export default function BugsPage() {
      
         <button onClick={() => setShowCreateModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold text-base">Báo cáo Bug</button>
       </div>
-      <div className="bg-white p-4 rounded-lg shadow">
+                  <div className="bg-white p-4 rounded-xl shadow-lg border border-white/50">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <input type="text" placeholder="Tìm kiếm theo tiêu đề hoặc mã bug..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 text-base" />
           <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base">
@@ -152,7 +152,7 @@ export default function BugsPage() {
             </select>
         </div>
       </div>
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+                  <div className="bg-white shadow-lg rounded-xl border border-white/50 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
           <thead>
             <tr>
@@ -169,7 +169,7 @@ export default function BugsPage() {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Hành động</th>
               </tr>
             </thead>
-          <tbody className="bg-white divide-y divide-gray-200 text-base">
+                      <tbody className="bg-white/50 divide-y divide-gray-200/50 text-base">
               {filteredBugs.map((bug) => (
               <tr key={bug._id} className="hover:bg-gray-50">
                 <td className="px-6 py-3">

@@ -1,13 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 
+// Helper to get full avatar URL for local and production
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return '';
+  if (avatar.startsWith('/uploads/')) {
+    return backendUrl + avatar;
+  }
+  return avatar;
+};
+
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const userMenuRef = useRef(null);
+  const [moduleRequestCount, setModuleRequestCount] = useState(0);
+
+  useEffect(() => {
+    // Fetch module request count
+    const fetchCount = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/module-requests', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const pendingCount = Array.isArray(data.data.requests)
+            ? data.data.requests.filter(r => r.status === 'pending').length
+            : 0;
+          setModuleRequestCount(pendingCount);
+        }
+      } catch {
+        setModuleRequestCount(0);
+      }
+    };
+    fetchCount();
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -42,75 +91,106 @@ export default function Layout() {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-white">
+    <div className="h-screen flex overflow-hidden relative">
+      {/* Background Image for entire layout */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat backdrop-blur-2xl"
+        style={{
+          // backgroundImage: 'url(/banner.svg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* Gradient Overlay for main content */}
+        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+      </div>
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block md:flex-shrink-0`}>
-        <div className="flex flex-col w-64 h-full">
-          <div className="flex flex-col h-0 flex-1 ">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex items-center flex-shrink-0 px-4">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    {/* <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg> */}
-                  </div>
-                  <div className="ml-3">
-                    <img src="/viettelsol.png" alt="Logo" className="w-full h-20" />
-                  </div>
-                </div>
-              </div>
-              <nav className="mt-5 flex-1 px-2 space-y-1">
-                {navigation.map((item) => {
-                  const isActive = location.pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`${
-                        isActive
-                          ? 'bg-red-600 text-white'
-                          : 'text-black hover:bg-red-600 hover:text-white'
-                      } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                      onClick={() => { console.log('Click:', item.href); }}
-                    >
-                      <svg
-                        className={`${
-                          isActive ? 'text-white' : 'text-red-600 group-hover:text-white'
-                        } mr-3 flex-shrink-0 h-6 w-6`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                      </svg>
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </nav>
+        <div className="flex flex-col w-64 h-full relative">
+          {/* Background Image with Overlay */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat backdrop-blur-xl"
+            style={{
+              // backgroundImage: 'url(/banner.svg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            {/* Gradient Overlay */}
+            {/* <div className="absolute inset-0 bg-white bg-opacity-15"></div> */}
+          </div>
+          {/* Logo VT - luôn ở trên cùng sidebar */}
+          <div className="w-full flex items-center justify-center  z-10">
+            <div className="w-full h-20 bg-white flex items-center justify-center shadow-xl">
+              <img src="/viettelsol.png" alt="Logo" className="max-h-16 max-w-full object-contain" />
             </div>
-            <div className="flex-shrink-0 flex bg-red-600 p-4">
-              <div className="flex items-center">
-                <div>
-                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-                    <span className="text-sm font-medium text-red-600">
-                      {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+          </div>
+          {/* Content */}
+          <div className="relative z-10 flex flex-col h-0 flex-1">
+            <nav className="mt-8 flex-1 px-2 space-y-2">
+              {navigation.map((item) => {
+                const isActive = location.pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={
+                      `group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:shadow-md ` +
+                      (isActive ? 'bg-white text-black shadow-lg border border-white' : 'text-black hover:bg-white hover:text-black')
+                    }
+                    onClick={() => { console.log('Click:', item.href); }}
+                  >
+                    <svg
+                      className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 text-[#d80027]`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                    </svg>
+                    <span className="relative flex items-center">
+                      {item.name}
+                      {item.name === 'Yêu cầu Module' && moduleRequestCount > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[20px] h-5">
+                          {moduleRequestCount}
+                        </span>
+                      )}
                     </span>
+                  </Link>
+                );
+              })}
+            </nav>
+            {/* User Section - chỉ avatar user, tên, vai trò, logout */}
+            <div className="flex-shrink-0 p-4">
+              <div className="bg-white rounded-xl p-4 border border-white/20">
+                <div className="flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-xl overflow-hidden">
+                    {user?.profile?.avatar ? (
+                      <img
+                        src={getAvatarUrl(user.profile.avatar)}
+                        alt="Avatar"
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-bold text-[#d80027] shadow-lg">
+                        {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                      </span>
+                    )}
                   </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-medium text-[#d80027] truncate">{user?.fullName || user?.username}</p>
+                    <p className="text-xs text-gray-900">{getRoleDisplayName(user?.role)}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex-shrink-0 bg-white/20 hover:bg-white/30 p-2 rounded-lg text-[#d80027] transition-colors duration-200"
+                    title="Đăng xuất"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  </button>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">{user?.fullName || user?.username}</p>
-                  <p className="text-xs text-gray-300">{getRoleDisplayName(user?.role)}</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="ml-5 flex-shrink-0 bg-white p-1 rounded-md text-black hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>
@@ -118,9 +198,9 @@ export default function Layout() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col w-0 flex-1 overflow-hidden">
+      <div className="flex flex-col w-0 flex-1 overflow-hidden relative z-10">
         {/* Header */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+        <div className="relative z-10 flex-shrink-0 flex h-20 bg-white shadow-lg border-b border-gray-200/50">
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex items-center">
               <div className="md:hidden">
@@ -170,16 +250,57 @@ export default function Layout() {
               <NotificationDropdown />
               
               {/* User Menu */}
-              <div className="flex items-center">
-                <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">
-                    {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
-                  </span>
-                </div>
-                <div className="ml-3 hidden md:block">
-                  <p className="text-sm font-medium text-gray-900">{user?.fullName || user?.username}</p>
-                  <p className="text-xs text-gray-500">{getRoleDisplayName(user?.role)}</p>
-                </div>
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center overflow-hidden">
+                    {user?.profile?.avatar ? (
+                      <img
+                        src={getAvatarUrl(user.profile.avatar)}
+                        alt="Avatar"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium text-white">
+                        {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-medium text-gray-900">{user?.fullName || user?.username}</p>
+                    <p className="text-xs text-gray-500">{getRoleDisplayName(user?.role)}</p>
+                  </div>
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="mr-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Thông tin cá nhân
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <svg className="mr-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -187,8 +308,10 @@ export default function Layout() {
 
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <Outlet />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-white rounded-xl shadow-lg border border-white/50 p-6">
+                <Outlet />
+              </div>
             </div>
           </div>
         </main>
@@ -199,11 +322,11 @@ export default function Layout() {
         <div className="md:hidden">
           <div className="fixed inset-0 z-40 flex">
             <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-              <div className="absolute top-0 right-0 -mr-12 pt-2">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full">
+              <div className="absolute top-0 right-0 -mr-12 pt-2 z-20">
                 <button
                   type="button"
-                  className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                  className="ml-1 flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-lg focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                   onClick={() => setSidebarOpen(false)}
                 >
                   <span className="sr-only">Close sidebar</span>
@@ -212,74 +335,97 @@ export default function Layout() {
                   </svg>
                 </button>
               </div>
-              {/* Sidebar content (copy from desktop) */}
-              <div className="flex flex-col w-64 h-full">
-                <div className="flex flex-col h-0 flex-1 ">
-                  <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-                    <div className="flex items-center flex-shrink-0 px-4">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0"></div>
-                        <div className="ml-3">
-                          <img src="/viettelsol.png" alt="Logo" className="w-full h-20" />
-                        </div>
-                      </div>
+              
+              {/* Mobile Sidebar with same background */}
+              <div className="flex flex-col w-full h-full relative">
+                {/* Background Image with Overlay */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat backdrop-blur-xl"
+                  style={{
+                    backgroundImage: 'url(/banner.svg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#d80027]/90 via-[#d80027]/80 to-[#d80027]/95"></div>
+                </div>
+                
+                {/* Content */}
+                <div className="relative z-10 flex flex-col h-0 flex-1">
+                  <div className="w-full flex items-center justify-center py-6 z-10">
+                    <div className="w-5/6 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+                      <img src="/viettelsol.png" alt="Logo" className="max-h-16 max-w-full object-contain" />
                     </div>
-                    <nav className="mt-5 flex-1 px-2 space-y-1">
-                      {navigation.map((item) => {
-                        const isActive = location.pathname.startsWith(item.href);
-                        return (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            className={`${
-                              isActive
-                                ? 'bg-red-600 text-white'
-                                : 'text-black hover:bg-red-600 hover:text-white'
-                            } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                            onClick={() => setSidebarOpen(false)}
-                          >
-                            <svg
-                              className={`${
-                                isActive ? 'text-white' : 'text-red-600 group-hover:text-white'
-                              } mr-3 flex-shrink-0 h-6 w-6`}
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                            </svg>
-                            {item.name}
-                          </Link>
-                        );
-                      })}
-                    </nav>
                   </div>
-                  <div className="flex-shrink-0 flex bg-red-600 p-4">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-                          <span className="text-sm font-medium text-red-600">
-                            {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                  <nav className="mt-8 flex-1 px-2 space-y-2">
+                    {navigation.map((item) => {
+                      const isActive = location.pathname.startsWith(item.href);
+                      return (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          className={
+                            `group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:shadow-md ` +
+                            (isActive ? 'bg-white text-black shadow-lg border border-white' : 'text-black hover:bg-white hover:text-black')
+                          }
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          <svg
+                            className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 text-[#d80027]`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                          </svg>
+                          <span className="relative flex items-center">
+                            {item.name}
+                            {item.name === 'Yêu cầu Module' && moduleRequestCount > 0 && (
+                              <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[20px] h-5">
+                                {moduleRequestCount}
+                              </span>
+                            )}
                           </span>
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  {/* User Section */}
+                  <div className="flex-shrink-0 p-4">
+                    <div className="bg-white rounded-xl p-4 border border-white/20">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-xl overflow-hidden">
+                          {user?.profile?.avatar ? (
+                            <img
+                              src={getAvatarUrl(user.profile.avatar)}
+                              alt="Avatar"
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm font-bold text-[#d80027] shadow-lg">
+                              {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                            </span>
+                          )}
                         </div>
+                        <div className="ml-3 flex-1">
+                          <p className="text-sm font-medium text-[#d80027] truncate">{user?.fullName || user?.username}</p>
+                          <p className="text-xs text-gray-900">{getRoleDisplayName(user?.role)}</p>
+                        </div>
+                        <button
+                          onClick={handleLogout}
+                          className="flex-shrink-0 bg-white/20 hover:bg-white/30 p-2 rounded-lg text-[#d80027] transition-colors duration-200"
+                          title="Đăng xuất"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                        </button>
                       </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-white">{user?.fullName || user?.username}</p>
-                        <p className="text-xs text-gray-300">{getRoleDisplayName(user?.role)}</p>
-                      </div>
-                      <button
-                        onClick={handleLogout}
-                        className="ml-5 flex-shrink-0 bg-white p-1 rounded-md text-black hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                      >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-              {/* End sidebar content */}
             </div>
           </div>
         </div>

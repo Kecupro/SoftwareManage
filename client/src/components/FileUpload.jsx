@@ -194,7 +194,7 @@ export default function FileUpload({
             type="button"
             onClick={handleUpload}
             disabled={isUploading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-[#d80027] hover:bg-[#b3001b] disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             {isUploading ? (
               <div className="flex items-center justify-center space-x-2">

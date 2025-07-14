@@ -91,10 +91,10 @@ const loginValidation = [
     .withMessage('Mật khẩu không được để trống')
 ];
 
-// @route   POST /api/auth/register
-// @desc    Đăng ký tài khoản mới
-// @access  Public (chỉ admin mới có thể tạo tài khoản)
-router.post('/register', registerValidation, async (req, res) => {
+// @route   POST /api/auth/register-admin
+// @desc    Đăng ký tài khoản mới (chỉ admin mới có thể tạo tài khoản)
+// @access  Private (Admin only)
+router.post('/register-admin', authMiddleware, checkRole('admin'), registerValidation, async (req, res) => {
   try {
     // Kiểm tra validation errors
     const errors = validationResult(req);
@@ -133,32 +133,16 @@ router.post('/register', registerValidation, async (req, res) => {
       password,
       fullName,
       role,
-      profile
+      profile,
+      isActive: true,
+      status: 'active'
     });
 
-        await user.save();
-
-    // Tạo JWT token
-    const payload = {
-      userId: user._id,
-      username: user.username,
-      email: user.email,
-      role: user.role
-    };
-
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    // Cập nhật lastLogin
-    user.lastLogin = new Date();
     await user.save();
 
     res.status(201).json({
       success: true,
-      message: 'Đăng ký thành công',
+      message: 'Tạo tài khoản thành công',
       data: {
         user: {
           id: user._id,
@@ -167,12 +151,11 @@ router.post('/register', registerValidation, async (req, res) => {
           fullName: user.fullName,
           role: user.role,
           profile: user.profile
-        },
-        token
+        }
       }
     });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('Register admin error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi server'
@@ -557,15 +540,15 @@ router.post('/register', publicRegisterValidation, async (req, res) => {
         phone,
         department
       },
-      isActive: false, // Cần admin kích hoạt
-      status: 'pending'
+      isActive: true, // Tự động kích hoạt cho demo
+      status: 'active'
     });
 
     await user.save();
 
     res.status(201).json({
       success: true,
-      message: 'Đăng ký thành công! Tài khoản sẽ được kích hoạt sau khi admin xác nhận.'
+      message: 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.'
     });
   } catch (error) {
     console.error('Public register error:', error);

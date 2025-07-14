@@ -219,7 +219,7 @@ export default function UsersPage() {
         </div>
 
         {/* Filter/Search */}
-        <div className="bg-white p-4 rounded-lg shadow flex flex-wrap gap-4 items-end">
+                    <div className="bg-white rounded-xl shadow-lg border border-white/50 p-6 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
             <input
@@ -255,7 +255,7 @@ export default function UsersPage() {
         {/* Invite Modal */}
         {showInviteModal && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <div className="bg-white rounded-xl shadow-lg border border-white/50 w-full max-w-md p-6 relative">
               <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => { setShowInviteModal(false); setInviteResult(null); }}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -302,7 +302,7 @@ export default function UsersPage() {
         {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <div className="bg-white rounded-xl shadow-lg border border-white/50 w-full max-w-md p-6 relative">
               <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => { setShowCreateModal(false); setCreateResult(null); }}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -343,7 +343,7 @@ export default function UsersPage() {
         {/* Edit Modal */}
         {showEditModal && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <div className="bg-white rounded-xl shadow-lg border border-white/50 w-full max-w-md p-6 relative">
               <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => { setShowEditModal(false); setEditResult(null); }}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -386,7 +386,7 @@ export default function UsersPage() {
         {/* Delete Confirm Dialog */}
         {confirmDelete && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative">
+            <div className="bg-white rounded-xl shadow-lg border border-white/50 w-full max-w-sm p-6 relative">
               <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setConfirmDelete(null)}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -406,7 +406,7 @@ export default function UsersPage() {
         )}
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <div className="bg-white rounded-xl shadow-lg border border-white/50 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -418,7 +418,7 @@ export default function UsersPage() {
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hành động</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white/50 divide-y divide-gray-200/50">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-8">

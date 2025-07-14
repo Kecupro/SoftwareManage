@@ -58,7 +58,7 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white overflow-hidden">
+            <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left: Logo, hotline, illustration, background image */}
       <div 
         className={`md:w-1/2 relative flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200 transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}`}
@@ -87,7 +87,7 @@ export default function PartnerLoginPage() {
       
       {/* Right: Login Form */}
       <div 
-        className={`md:w-1/2 flex flex-col justify-center items-center p-8 bg-white transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
+                    className={`md:w-1/2 flex flex-col justify-center items-center p-8 bg-white backdrop-blur-sm transition-all duration-1000 ease-in-out transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
       >
         <div className="w-full max-w-md animate-fade-in-up">
           <h2 className="text-2xl font-bold text-indigo-700 text-center mb-2 uppercase animate-slide-in-down">Đăng nhập Đối tác</h2>

@@ -40,7 +40,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Kết nối đến MongoDB
 mongoose.connect(process.env.MONGO_URI, {

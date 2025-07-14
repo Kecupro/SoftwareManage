@@ -29,6 +29,8 @@ import PartnerPortalPage from './pages/PartnerPortalPage';
 import PartnersPage from './pages/PartnersPage';
 import Layout from './components/Layout';
 import ModuleRequestsPage from './pages/ModuleRequestsPage';
+import ProfilePage from './pages/ProfilePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -73,6 +75,8 @@ function AppContent() {
           <Route path="partners" element={<PartnersPage />} />
           <Route path="module-requests" element={<ModuleRequestsPage />} />
           <Route path="module-requests/:id" element={<ModuleDetailPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="change-password" element={<ChangePasswordPage />} />
           {/* Bugs management */}
           <Route path="bugs" element={<BugsPage />} />
           <Route path="bugs/:id" element={<BugDetailPage />} />
