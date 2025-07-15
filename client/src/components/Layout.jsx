@@ -3,8 +3,8 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 
-// Helper to get full avatar URL cho local và production
-const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// Helper to get full avatar URL for local and production
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const getAvatarUrl = (avatar) => {
   if (!avatar) return '';
   if (avatar.startsWith('/uploads/')) {
@@ -118,36 +118,36 @@ export default function Layout() {
           >
             {/* Gradient Overlay */}
             {/* <div className="absolute inset-0 bg-white bg-opacity-15"></div> */}
-          </div>
+                  </div>
           {/* Logo VT - luôn ở trên cùng sidebar */}
           <div className="w-full flex items-center justify-center  z-10">
             <div className="w-full h-20 bg-white flex items-center justify-center shadow-xl">
               <img src="/viettelsol.png" alt="Logo" className="max-h-16 max-w-full object-contain" />
-            </div>
-          </div>
+                  </div>
+                </div>
           {/* Content */}
           <div className="relative z-10 flex flex-col h-0 flex-1">
             <nav className="mt-8 flex-1 px-2 space-y-2">
-              {navigation.map((item) => {
-                const isActive = location.pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
+                {navigation.map((item) => {
+                  const isActive = location.pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
                     className={
                       `group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:shadow-md ` +
                       (isActive ? 'bg-white text-black shadow-lg border border-white' : 'text-black hover:bg-white hover:text-black')
                     }
-                    onClick={() => { console.log('Click:', item.href); }}
-                  >
-                    <svg
-                      className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 text-[#d80027]`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                      onClick={() => { console.log('Click:', item.href); }}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                    </svg>
+                      <svg
+                      className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 text-[#d80027]`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                      </svg>
                     <span className="relative flex items-center">
                       {item.name}
                       {item.name === 'Yêu cầu Module' && moduleRequestCount > 0 && (
@@ -156,14 +156,14 @@ export default function Layout() {
                         </span>
                       )}
                     </span>
-                  </Link>
-                );
-              })}
-            </nav>
+                    </Link>
+                  );
+                })}
+              </nav>
             {/* User Section - chỉ avatar user, tên, vai trò, logout */}
             <div className="flex-shrink-0 p-4">
               <div className="bg-white rounded-xl p-4 border border-white/20">
-                <div className="flex items-center">
+              <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-xl overflow-hidden">
                     {user?.profile?.avatar ? (
                       <img
@@ -173,23 +173,23 @@ export default function Layout() {
                       />
                     ) : (
                       <span className="text-sm font-bold text-[#d80027] shadow-lg">
-                        {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
-                      </span>
+                      {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                    </span>
                     )}
                   </div>
                   <div className="ml-3 flex-1">
                     <p className="text-sm font-medium text-[#d80027] truncate">{user?.fullName || user?.username}</p>
                     <p className="text-xs text-gray-900">{getRoleDisplayName(user?.role)}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
+                </div>
+                <button
+                  onClick={handleLogout}
                     className="flex-shrink-0 bg-white/20 hover:bg-white/30 p-2 rounded-lg text-[#d80027] transition-colors duration-200"
                     title="Đăng xuất"
-                  >
+                >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                  </button>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
                 </div>
               </div>
             </div>
@@ -263,15 +263,15 @@ export default function Layout() {
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <span className="text-sm font-medium text-white">
-                        {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
-                      </span>
+                  <span className="text-sm font-medium text-white">
+                    {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                  </span>
                     )}
-                  </div>
+                </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-gray-900">{user?.fullName || user?.username}</p>
-                    <p className="text-xs text-gray-500">{getRoleDisplayName(user?.role)}</p>
-                  </div>
+                  <p className="text-sm font-medium text-gray-900">{user?.fullName || user?.username}</p>
+                  <p className="text-xs text-gray-500">{getRoleDisplayName(user?.role)}</p>
+                </div>
                   <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -310,7 +310,7 @@ export default function Layout() {
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="bg-white rounded-xl shadow-lg border border-white/50 p-6">
-                <Outlet />
+              <Outlet />
               </div>
             </div>
           </div>
@@ -349,36 +349,38 @@ export default function Layout() {
                 >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-b from-[#d80027]/90 via-[#d80027]/80 to-[#d80027]/95"></div>
-                </div>
+                        </div>
                 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col h-0 flex-1">
-                  <div className="w-full flex items-center justify-center py-6 z-10">
-                    <div className="w-5/6 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="w-full flex items-center justify-center  z-10">
+                    <div className="w-full h-20 bg-white  flex items-center justify-center shadow-xl">
                       <img src="/viettelsol.png" alt="Logo" className="max-h-16 max-w-full object-contain" />
                     </div>
                   </div>
                   <nav className="mt-8 flex-1 px-2 space-y-2">
-                    {navigation.map((item) => {
-                      const isActive = location.pathname.startsWith(item.href);
-                      return (
-                        <Link
-                          key={item.name}
-                          to={item.href}
+                      {navigation.map((item) => {
+                        const isActive = location.pathname.startsWith(item.href);
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
                           className={
                             `group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:shadow-md ` +
-                            (isActive ? 'bg-white text-black shadow-lg border border-white' : 'text-black hover:bg-white hover:text-black')
+                            (isActive
+                              ? 'bg-white text-black shadow-lg border border-white'
+                              : 'text-white hover:bg-white hover:text-black')
                           }
-                          onClick={() => setSidebarOpen(false)}
-                        >
-                          <svg
-                            className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 text-[#d80027]`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            onClick={() => setSidebarOpen(false)}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                          </svg>
+                            <svg
+                            className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200 ${isActive ? 'text-[#d80027]' : 'text-white'}`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                            </svg>
                           <span className="relative flex items-center">
                             {item.name}
                             {item.name === 'Yêu cầu Module' && moduleRequestCount > 0 && (
@@ -387,14 +389,14 @@ export default function Layout() {
                               </span>
                             )}
                           </span>
-                        </Link>
-                      );
-                    })}
-                  </nav>
+                          </Link>
+                        );
+                      })}
+                    </nav>
                   {/* User Section */}
                   <div className="flex-shrink-0 p-4">
                     <div className="bg-white rounded-xl p-4 border border-white/20">
-                      <div className="flex items-center">
+                    <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-xl overflow-hidden">
                           {user?.profile?.avatar ? (
                             <img
@@ -404,23 +406,23 @@ export default function Layout() {
                             />
                           ) : (
                             <span className="text-sm font-bold text-[#d80027] shadow-lg">
-                              {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
-                            </span>
+                            {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                          </span>
                           )}
                         </div>
                         <div className="ml-3 flex-1">
                           <p className="text-sm font-medium text-[#d80027] truncate">{user?.fullName || user?.username}</p>
                           <p className="text-xs text-gray-900">{getRoleDisplayName(user?.role)}</p>
-                        </div>
-                        <button
-                          onClick={handleLogout}
+                      </div>
+                      <button
+                        onClick={handleLogout}
                           className="flex-shrink-0 bg-white/20 hover:bg-white/30 p-2 rounded-lg text-[#d80027] transition-colors duration-200"
                           title="Đăng xuất"
-                        >
+                      >
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                          </svg>
-                        </button>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </button>
                       </div>
                     </div>
                   </div>
