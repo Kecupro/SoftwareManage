@@ -162,7 +162,9 @@ router.post('/', authMiddleware, checkRole('partner'), upload.array('attachments
       },
       attachments,
       requestedBy: req.user._id,
-      status: 'pending'
+      status: 'pending',
+      gitRepoUrl: req.body.gitRepoUrl,
+      gitCommit: req.body.gitCommit
     };
 
     console.log('Module request data to save:', moduleRequestData);

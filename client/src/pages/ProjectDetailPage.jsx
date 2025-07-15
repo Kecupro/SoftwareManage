@@ -57,8 +57,8 @@ function calcSprintProgress(sprint, tasks, userStories) {
 // Thêm hàm kiểm tra hoàn thành
 const isCompleted = status => ['completed', 'done', 'complete'].includes(status);
 
-// Helper to get full avatar URL for local and production
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+// Helper to get full avatar URL cho local và production
+const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const getAvatarUrl = (avatar) => {
   if (!avatar) return '';
   if (avatar.startsWith('/uploads/')) {

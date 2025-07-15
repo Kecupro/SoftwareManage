@@ -53,6 +53,14 @@ const moduleRequestSchema = new mongoose.Schema({
       size: Number
     }
   ],
+  gitRepoUrl: {
+    type: String,
+    trim: true
+  },
+  gitCommit: {
+    type: String,
+    trim: true
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'in-progress', 'completed'],

@@ -235,6 +235,12 @@ export default function ModuleDetailPage() {
                   <strong>Số giờ ước tính:</strong> {item.estimatedHours || 'N/A'}
                 </div>
                 <div>
+                  <strong>Git Repo:</strong> {item.gitRepoUrl ? (<a href={item.gitRepoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline">{item.gitRepoUrl}</a>) : 'N/A'}
+                </div>
+                <div>
+                  <strong>Commit:</strong> {item.gitCommit || 'N/A'}
+                </div>
+                <div>
                   <strong>File đính kèm:</strong>
                   <ul>
                     {(item.attachments || []).map((file, idx) => (

@@ -3,8 +3,8 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 
-// Helper to get full avatar URL for local and production
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+// Helper to get full avatar URL cho local và production
+const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const getAvatarUrl = (avatar) => {
   if (!avatar) return '';
   if (avatar.startsWith('/uploads/')) {

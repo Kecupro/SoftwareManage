@@ -218,6 +218,12 @@ export default function ModuleRequestList() {
                   Dự án
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Git Repo
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Commit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Trạng thái
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -256,6 +262,14 @@ export default function ModuleRequestList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {request.project?.name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-700 max-w-xs truncate" title={request.gitRepoUrl}>
+                    {request.gitRepoUrl ? (
+                      <a href={request.gitRepoUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">{request.gitRepoUrl}</a>
+                    ) : 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {request.gitCommit || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
@@ -305,6 +319,18 @@ export default function ModuleRequestList() {
                   <div>
                     <span className="text-gray-600">Dự án:</span>
                     <span className="ml-2 font-medium">{selectedRequest.project?.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Git Repo:</span>
+                    <span className="ml-2 font-medium">
+                      {selectedRequest.gitRepoUrl ? (
+                        <a href={selectedRequest.gitRepoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline">{selectedRequest.gitRepoUrl}</a>
+                      ) : 'N/A'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Commit:</span>
+                    <span className="ml-2 font-medium">{selectedRequest.gitCommit || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="mt-2">

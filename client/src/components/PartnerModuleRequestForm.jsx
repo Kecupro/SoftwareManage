@@ -14,7 +14,9 @@ export default function PartnerModuleRequestForm({ selectedProject }) {
     endDate: '',
     technicalRequirements: '',
     businessRequirements: '',
-    attachments: []
+    attachments: [],
+    gitRepoUrl: '',
+    gitCommit: ''
   });
 
   const handleInputChange = (e) => {
@@ -63,6 +65,8 @@ export default function PartnerModuleRequestForm({ selectedProject }) {
       formData.append('endDate', requestData.endDate);
       formData.append('technicalRequirements', requestData.technicalRequirements);
       formData.append('businessRequirements', requestData.businessRequirements);
+      formData.append('gitRepoUrl', requestData.gitRepoUrl);
+      formData.append('gitCommit', requestData.gitCommit);
 
       // Append attachment files
       if (requestData.attachments && requestData.attachments.length > 0) {
@@ -93,7 +97,9 @@ export default function PartnerModuleRequestForm({ selectedProject }) {
           endDate: '',
           technicalRequirements: '',
           businessRequirements: '',
-          attachments: []
+          attachments: [],
+          gitRepoUrl: '',
+          gitCommit: ''
         });
       } else {
         let errorMsg = 'Lỗi khi gửi yêu cầu';
@@ -207,6 +213,38 @@ export default function PartnerModuleRequestForm({ selectedProject }) {
               placeholder="Mô tả chi tiết chức năng và yêu cầu của module..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Git Repo & Commit */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="gitRepoUrl" className="block text-sm font-medium text-gray-700 mb-2">
+                Git Repository URL
+              </label>
+              <input
+                type="text"
+                id="gitRepoUrl"
+                name="gitRepoUrl"
+                value={requestData.gitRepoUrl}
+                onChange={handleInputChange}
+                placeholder="https://git.example.com/your-repo"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="gitCommit" className="block text-sm font-medium text-gray-700 mb-2">
+                Commit Hash
+              </label>
+              <input
+                type="text"
+                id="gitCommit"
+                name="gitCommit"
+                value={requestData.gitCommit}
+                onChange={handleInputChange}
+                placeholder="Nhập commit hash liên quan (nếu có)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
           {/* Priority and Timeline */}
@@ -366,7 +404,9 @@ export default function PartnerModuleRequestForm({ selectedProject }) {
                   endDate: '',
                   technicalRequirements: '',
                   businessRequirements: '',
-                  attachments: []
+                  attachments: [],
+                  gitRepoUrl: '',
+                  gitCommit: ''
                 });
               }}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
